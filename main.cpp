@@ -52,5 +52,6 @@ void processInput(GLFWwindow* window)
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+    std::cout<<"here be called!"<<std::endl;
     glViewport(0, 0, width, height);
 }
