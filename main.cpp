@@ -15,8 +15,11 @@ int main()
 {
 
     glfwInit();
+    // 设置主版本号 3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // 设置副版本号 3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // GLFW_OPENGL_CORE_PROFILE 对应核心模式 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
@@ -25,13 +28,18 @@ int main()
         glfwTerminate();
         return -1;  
     }
+    // 设置当前上下文
     glfwMakeContextCurrent(window); 
+    // 设置FramebufferSize的回调函数
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    // 初始化GLAD, GLAD回将所有设备的地址绑定到对应的指针上以供我们使用
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    // Render Loop
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
