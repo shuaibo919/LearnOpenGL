@@ -9,7 +9,11 @@ set(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"Libcmtd.lib")
 
 # OPENGL GLFW
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/glfw/include/GLFW)
+if(${MSVC_VERSION} LESS 1930)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/glfw/lib-vc2019)
+else()
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/glfw/lib-vc2022)
+endif()
 link_libraries(glfw3_mt glfw3 glfw3dll)
 # OPENGL GLAD
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/glad/include/)

@@ -1,4 +1,8 @@
 # Learning OpenGL
-## day01
-前缓冲区:屏幕上正在显示的图像
-后缓冲区:正在渲染的图像
+## LearningOpenGL
+
+学习记录(Windows 平台(mvsc2019/mvsc2022支持))
+
+环境设置:GLAD/GLFW + CMAKE + MVSC
+[LearningOpenGL](https://learnopengl-cn.github.io/)
+[author：Joey de Vries](http://joeydevries.com/)

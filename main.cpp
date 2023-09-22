@@ -40,6 +40,17 @@ int main()
         return -1;
     }
     // Render Loop
+
+    // 
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.0f,  0.5f, 0.0f
+    };
+    // 顶点缓冲对象(vertex buffer object)
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
