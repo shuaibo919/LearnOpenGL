@@ -84,3 +84,10 @@ void main()
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 ```
+
+### 1.5 EBO(Element Buffer Object)元素缓冲对象
+使用方式与VAO及VBO相似，首先:
+```cpp
+GLuint EBO;
+glGenBuffers(1,&EBO);
+```
