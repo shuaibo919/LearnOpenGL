@@ -41,9 +41,9 @@ int main()
         return -1;
     }
 
-    auto topTriangle = GLBasicTriangle(GLBsicPoint(0.0f, 0.0f), GLBsicPoint(0.2f, 0.2f), GLBsicPoint(-0.2f, 0.2f), GLBsicColor(0.4f, 0.2f, 0.3f));
-    auto bottomTriangle = GLBasicTriangle(GLBsicPoint(0.0f, 0.0f), GLBsicPoint(0.2f, -0.2f), GLBsicPoint(-0.2f, -0.2f), GLBsicColor(0.4f, 0.4f, 0.1f, 0.5f));
-    auto leftRectangle = GLBasicRectangle(GLBsicPoint(-0.8f, 0.8f), GLBsicPoint(-0.4f, 0.8f), GLBsicPoint(-0.8f, 0.4f), GLBsicPoint(-0.4f, 0.4f), GLBsicColor(0.4f, 0.2f, 0.3f));
+    GLBasicTriangle topTriangle({0.0f, 0.0f}, {0.2f, 0.2f}, {-0.2f, 0.2f}, GLBasicColor(0.4f, 0.2f, 0.3f));
+    GLBasicTriangle bottomTriangle({0.0f, 0.0f}, {0.2f, -0.2f}, {-0.2f, -0.2f}, GLBasicColor(0.4f, 0.4f, 0.1f, 0.5f));
+    GLBasicRectangle leftRectangle({-0.8f, 0.8f}, {-0.4f, 0.8f}, {-0.8f, 0.4f}, {-0.4f, 0.4f}, GLBasicColor(0.4f, 0.4f, 0.1f, 0.5f));
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {

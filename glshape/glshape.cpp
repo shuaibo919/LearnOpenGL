@@ -2,13 +2,13 @@
 #include <iostream>
 #include <sstream>
 
-GLBasicFillObject::GLBasicFillObject(const GLBsicColor &fill_color) : m_fill_color(fill_color)
+GLBasicFillObject::GLBasicFillObject(const GLBasicColor &fill_color) : m_fill_color(fill_color)
 {
     // 配置颜色
     prepareShaderProgram(m_fill_color);
 }
 
-void GLBasicFillObject::prepareShaderProgram(const GLBsicColor &fill_color)
+void GLBasicFillObject::prepareShaderProgram(const GLBasicColor &fill_color)
 {
     // 创建顶点着色器
     const char *vertexShaderSource = "#version 330 core\n"
@@ -67,7 +67,7 @@ GLBasicFillObject::~GLBasicFillObject()
     glDeleteProgram(m_shaderProgram);
 }
 
-GLBasicTriangle::GLBasicTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicColor &fill_color)
+GLBasicTriangle::GLBasicTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBasicColor &fill_color)
     : m_vertices{point1.x, point1.y, point1.z, point2.x, point2.y, point2.z, point3.x, point3.y, point3.z}, GLBasicFillObject(fill_color)
 {
     // 绑定至VAO
@@ -102,7 +102,7 @@ GLBasicTriangle::~GLBasicTriangle()
     deleteObject();
 }
 
-GLBasicRectangle::GLBasicRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4, const GLBsicColor &fill_color)
+GLBasicRectangle::GLBasicRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4, const GLBasicColor &fill_color)
     : m_vertices{point1.x, point1.y, point1.z, point2.x, point2.y, point2.z, point3.x, point3.y, point3.z, point4.x, point4.y, point4.z}, GLBasicFillObject(fill_color)
 {
     GLuint indices[] = {0, 1, 2, 1, 2, 3};
