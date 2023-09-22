@@ -62,6 +62,10 @@ int main()
     glEnableVertexAttribArray(0);
     GLuint shaderProgram = createMyShaderProgram();
 
+    //解绑VAO & VBO对象
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindVertexArray(0);
+
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
