@@ -1,24 +1,45 @@
 ﻿#include "glshape.h"
-#include <iostream>
 #include <sstream>
+#include <fstream>
 
-GLBasicFillObject::GLBasicFillObject(const GLBasicColor &fill_color) : m_fill_color(fill_color)
+// GLBasicFillObject OPENGL基本纹理对象
+GLBasicShaderObject::GLBasicShaderObject(std::string glsl_file_path)
 {
-    // 配置颜色
-    prepareShaderProgram(m_fill_color);
-}
-
-void GLBasicFillObject::prepareShaderProgram(const GLBasicColor &fill_color)
-{
+    // 1. 从文件路径中获取顶点/片段着色器
+    std::string vertexCode;
+    std::string fragmentCode;
+    std::ifstream vShaderFile;
+    std::ifstream fShaderFile;
+    // 保证ifstream对象可以抛出异常：
+    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try
+    {
+        // 打开文件
+        auto vsPath = glsl_file_path + ".vs";
+        auto fsPath = glsl_file_path + ".fs";
+        vShaderFile.open(vsPath);
+        fShaderFile.open(fsPath);
+        std::stringstream vShaderStream, fShaderStream;
+        // 读取文件的缓冲内容到数据流中
+        vShaderStream << vShaderFile.rdbuf();
+        fShaderStream << fShaderFile.rdbuf();
+        // 关闭文件处理器
+        vShaderFile.close();
+        fShaderFile.close();
+        // 转换数据流到string
+        vertexCode = vShaderStream.str();
+        fragmentCode = fShaderStream.str();
+    }
+    catch (std::ifstream::failure e)
+    {
+        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ  PATH:" << glsl_file_path << std::endl;
+    }
+    const char *vShaderCode = vertexCode.c_str();
+    const char *fShaderCode = fragmentCode.c_str();
     // 创建顶点着色器
-    const char *vertexShaderSource = "#version 330 core\n"
-                                     "layout (location = 0) in vec3 aPos;\n"
-                                     "void main()\n"
-                                     "{\n"
-                                     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-                                     "}\0";
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glShaderSource(vertexShader, 1, &vShaderCode, NULL);
     glCompileShader(vertexShader);
     int success;
     char infoLog[512];
@@ -29,16 +50,9 @@ void GLBasicFillObject::prepareShaderProgram(const GLBasicColor &fill_color)
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
                   << infoLog << std::endl;
     }
-
     // 创建片段着色器
-    std::stringstream fmt;
-    fmt << "#version 330 core\nout vec4 FragColor;\nvoid main(){\n   FragColor = vec4("
-        << m_fill_color.r << "," << m_fill_color.g << "," << m_fill_color.b << "," << m_fill_color.a
-        << ");\n}";
-    std::string fmtString = fmt.str();
-    const char *fragmentSahderSource = fmtString.c_str();
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSahderSource, NULL);
+    glShaderSource(fragmentShader, 1, &fShaderCode, NULL);
     glCompileShader(fragmentShader);
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success)
@@ -56,20 +70,39 @@ void GLBasicFillObject::prepareShaderProgram(const GLBasicColor &fill_color)
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 }
-
-GLuint GLBasicFillObject::getShaderProgram()
+GLuint GLBasicShaderObject::getShaderProgram()
 {
     return m_shaderProgram;
 }
-
-GLBasicFillObject::~GLBasicFillObject()
+void GLBasicShaderObject::setUniform(const std::string &name, int value)
+{
+    glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
+}
+void GLBasicShaderObject::setUniform(const std::string &name, float value)
+{
+    glUniform1f(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
+}
+void GLBasicShaderObject::setUniform(const std::string &name, bool value)
+{
+    glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), (int)value);
+}
+void GLBasicShaderObject::setUniform(const std::string &name, GLBasicColor value)
+{
+    glUniform4f(glGetUniformLocation(m_shaderProgram, name.c_str()), value.r, value.g, value.b, value.a);
+}
+GLBasicShaderObject::~GLBasicShaderObject()
 {
     glDeleteProgram(m_shaderProgram);
 }
 
-GLBasicTriangle::GLBasicTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBasicColor &fill_color)
-    : m_vertices{point1.x, point1.y, point1.z, point2.x, point2.y, point2.z, point3.x, point3.y, point3.z}, GLBasicFillObject(fill_color)
+// GLBasicTriangle OPENGL基本三角形对象
+
+GLBasicTriangle::GLBasicTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3,
+                                 const GLBasicColor &fill_color, std::string glsl_file_path)
+    : m_vertices{point1.x, point1.y, point1.z, point2.x, point2.y, point2.z, point3.x, point3.y, point3.z}, GLBasicShaderObject(glsl_file_path)
 {
+    // 设置填充颜色
+    setUniform("mFragmentColor", fill_color);
     // 绑定至VAO
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
@@ -102,9 +135,14 @@ GLBasicTriangle::~GLBasicTriangle()
     deleteObject();
 }
 
-GLBasicRectangle::GLBasicRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4, const GLBasicColor &fill_color)
-    : m_vertices{point1.x, point1.y, point1.z, point2.x, point2.y, point2.z, point3.x, point3.y, point3.z, point4.x, point4.y, point4.z}, GLBasicFillObject(fill_color)
+// GLBasicRectangle OPENGL基本矩形对象
+
+GLBasicRectangle::GLBasicRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4,
+                                   const GLBasicColor &fill_color, std::string glsl_file_path)
+    : m_vertices{point1.x, point1.y, point1.z, point2.x, point2.y, point2.z, point3.x, point3.y, point3.z, point4.x, point4.y, point4.z}, GLBasicShaderObject(glsl_file_path)
 {
+    // 设置填充颜色
+    setUniform("mFragmentColor", fill_color);
     GLuint indices[] = {0, 1, 2, 1, 2, 3};
     // 绑定至VAO
     glGenVertexArrays(1, &m_VAO);

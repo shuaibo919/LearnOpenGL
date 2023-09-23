@@ -4,6 +4,7 @@
 #include "glad/glad.h"
 #include "KHR/khrplatform.h"
 #include "glfw3.h"
+#include <iostream>
 struct GLBsicPoint
 {
     float x;
@@ -20,19 +21,23 @@ struct GLBasicColor
     GLBasicColor(float e_r, float e_g, float e_b, float e_a = 1.0f) : r(e_r), g(e_g), b(e_b), a(e_a) {}
 };
 
-class GLBasicFillObject
+class GLBasicShaderObject
 {
 private:
+    const char *GLSL;
     GLuint m_shaderProgram;
-    GLBasicColor m_fill_color;
-    void prepareShaderProgram(const GLBasicColor &fill_color);
 
 public:
-    GLBasicFillObject(const GLBasicColor &fill_color);
+    GLBasicShaderObject(std::string glsl_file_path);
     GLuint getShaderProgram();
-    ~GLBasicFillObject();
+    void setUniform(const std::string &name, int value);
+    void setUniform(const std::string &name, float value);
+    void setUniform(const std::string &name, bool value);
+    void setUniform(const std::string &name, GLBasicColor value);
+    ~GLBasicShaderObject();
 };
-class GLBasicTriangle : public GLBasicFillObject
+
+class GLBasicTriangle : public GLBasicShaderObject
 {
 private:
     // vertices property
@@ -41,13 +46,14 @@ private:
     GLuint m_VBO;
 
 public:
-    GLBasicTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBasicColor &fill_color);
+    GLBasicTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3,
+                    const GLBasicColor &fill_color, std::string glsl_file_path = "resource/shader/fillobj");
     void draw();
     void deleteObject();
     ~GLBasicTriangle();
 };
 
-class GLBasicRectangle : public GLBasicFillObject
+class GLBasicRectangle : public GLBasicShaderObject
 {
 private:
     // vertices property
@@ -57,7 +63,8 @@ private:
     GLuint m_EBO;
 
 public:
-    GLBasicRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4, const GLBasicColor &fill_color);
+    GLBasicRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4,
+                     const GLBasicColor &fill_color, std::string glsl_file_path = "resource/shader/fillobj");
     void draw();
     void deleteObject();
     ~GLBasicRectangle();

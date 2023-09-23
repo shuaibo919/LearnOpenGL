@@ -11,11 +11,11 @@ OpenGL是一组规范，他本身是一个巨大的状态机，我们通过改�
 Vertex Shader -> Shape Assembly -> Geometry Shader -> Rasterization -> Fragment Shader -> Blending
 
 ### 1.4 VAO/VBO
-|macro|type|
-|:---:|:---:|
-|GL_STATIC_DRAW|适用静态数据|
-|GL_STREAM_DRAW|适用流式数据|
-|GL_DYNAMIC_DRAW|适用频繁改变的数据|
+|      macro      |        type        |
+| :-------------: | :----------------: |
+| GL_STATIC_DRAW  |    适用静态数据    |
+| GL_STREAM_DRAW  |    适用流式数据    |
+| GL_DYNAMIC_DRAW | 适用频繁改变的数据 |
 
 ```cpp
     ...
@@ -91,3 +91,5 @@ void main()
 GLuint EBO;
 glGenBuffers(1,&EBO);
 ```
+
+### 1.6 Union
