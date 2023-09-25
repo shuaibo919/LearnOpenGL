@@ -1,7 +1,6 @@
 ﻿#include "glshape.h"
 #include <sstream>
 #include <fstream>
-
 // GLBasicFillObject OPENGL基本纹理对象
 GLBasicShaderObject::GLBasicShaderObject(std::string glsl_file_path)
 {
@@ -263,10 +262,13 @@ void GLTextureRectangle::draw()
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
-void GLTextureRectangle::draw(GLuint textureId)
+void GLTextureRectangle::draw(std::vector<GLuint> textureIds)
 {
     glUseProgram(getShaderProgram());
-    glBindTexture(GL_TEXTURE_2D,textureId);
+    for(GLuint i=0;i<textureIds.size();++i){
+        glActiveTexture(GL_TEXTURE0 + i );
+        glBindTexture(GL_TEXTURE_2D,textureIds[i]);
+    }
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

@@ -5,6 +5,7 @@
 #include "KHR/khrplatform.h"
 #include "glfw3.h"
 #include <iostream>
+#include <vector>
 struct GLBsicPoint
 {
     float x;
@@ -101,7 +102,7 @@ class GLTextureRectangle : public GLBasicShaderObject
                       const GLBasicColor &color1, const GLBasicColor &color2, const GLBasicColor &color3, const GLBasicColor &color4, 
                       std::string glsl_file_path = "resource/shader/textureobj");
     void draw();
-    void draw(GLuint textureId);
+    void draw(std::vector<GLuint> textureIds);
     void deleteObject();
                       
     ~GLTextureRectangle();

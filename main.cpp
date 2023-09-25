@@ -13,6 +13,7 @@
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
+GLuint loadTexture(const char* file_path, GLuint internalFormat);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -49,30 +50,14 @@ int main()
     GLBasicRectangle leftRectangle({-0.8f, 0.8f}, {-0.4f, 0.8f}, {-0.8f, 0.4f}, {-0.4f, 0.4f}, GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f));
     GLVertexTriangle rightTriangle({0.5f,0.2f},{0.3f,-0.05f},{0.7f,-0.05f},GLBasicColor(0.8f, 0.2f, 0.3f),GLBasicColor(0.4f, 0.9f, 0.1f),GLBasicColor(0.1f, 0.1f, 0.9f));
     GLTextureRectangle rightRectangle({0.5f,-0.2f},{0.9f,-0.2f},{0.5f,-0.6f},{0.9f,-0.6f},
-                                      GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f),GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f),
-                                      GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f),GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f));
+                                      GLBasicColor(0.1f, 0.5f, 0.9f),GLBasicColor(0.1f, 0.6f, 0.6f),
+                                      GLBasicColor(0.1f, 0.9f, 0.3f),GLBasicColor(0.9f, 0.2f, 0.6f));
 
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // 为当前绑定的纹理对象设置环绕、过滤方式
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // 加载并生成纹理
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("resource/img/container.jpg", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+    GLuint woodTexture = loadTexture("resource/img/container.jpg",GL_RGB);
+    GLuint faceTexture = loadTexture("resource/img/awesomeface.png",GL_RGBA);
+    auto textures = std::vector<GLuint>({woodTexture,faceTexture});
+    rightRectangle.setUniform("texture1",0);
+    rightRectangle.setUniform("texture2",1);
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -90,7 +75,7 @@ int main()
         bottomTriangle.draw();
         leftRectangle.draw();
         rightTriangle.draw();
-        rightRectangle.draw(texture);
+        rightRectangle.draw(textures);
 
         // cache
         glfwSwapBuffers(window);
@@ -110,4 +95,30 @@ void processInput(GLFWwindow *window)
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+GLuint loadTexture(const char* file_path, GLuint internalFormat)
+{
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // 为当前绑定的纹理对象设置环绕、过滤方式
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // 加载并生成纹理
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load(file_path, &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+    return texture;
 }
