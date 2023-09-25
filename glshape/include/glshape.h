@@ -53,6 +53,22 @@ public:
     ~GLBasicTriangle();
 };
 
+class GLVertexTriangle : public GLBasicShaderObject
+{
+private:
+    // vertices property
+    float m_vertices[18];
+    GLuint m_VAO;
+    GLuint m_VBO;
+public:
+    GLVertexTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3,
+                    const GLBasicColor &color1,const GLBasicColor &color2, const GLBasicColor &color3, 
+                    std::string glsl_file_path = "resource/shader/vertexobj");
+    void draw();
+    void deleteObject();
+    ~GLVertexTriangle();
+};
+
 class GLBasicRectangle : public GLBasicShaderObject
 {
 private:

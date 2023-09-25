@@ -6,6 +6,7 @@
 
 // seld header
 #include "glshape.h"
+#include <cmath>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -43,7 +44,8 @@ int main()
 
     GLBasicTriangle topTriangle({0.0f, 0.0f}, {0.2f, 0.2f}, {-0.2f, 0.2f}, GLBasicColor(0.4f, 0.2f, 0.3f));
     GLBasicTriangle bottomTriangle({0.0f, 0.0f}, {0.2f, -0.2f}, {-0.2f, -0.2f}, GLBasicColor(0.4f, 0.4f, 0.1f, 0.5f));
-    GLBasicRectangle leftRectangle({-0.8f, 0.8f}, {-0.4f, 0.8f}, {-0.8f, 0.4f}, {-0.4f, 0.4f}, GLBasicColor(0.4f, 0.4f, 0.1f, 0.5f));
+    GLBasicRectangle leftRectangle({-0.8f, 0.8f}, {-0.4f, 0.8f}, {-0.8f, 0.4f}, {-0.4f, 0.4f}, GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f));
+    GLVertexTriangle rightTriangle({0.5f,0.0f},{0.3f,-0.25f},{0.7f,-0.25f},GLBasicColor(0.8f, 0.2f, 0.3f),GLBasicColor(0.4f, 0.9f, 0.1f),GLBasicColor(0.1f, 0.1f, 0.9f));
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -52,9 +54,16 @@ int main()
         glClearColor(0.2f, 0.6f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         // draw triangle
+        float timeValue = glfwGetTime();
+        float rvalue = sin(timeValue) / 2.0f + 0.4f;
+        float gvalue = cos(timeValue) / 2.0f + 0.3f;
+        float bvalue = sin(timeValue * 1.5f) / 2.0f + 0.5f;
+        topTriangle.setUniform("mFragmentColor",GLBasicColor(rvalue,gvalue,bvalue));
         topTriangle.draw();
         bottomTriangle.draw();
         leftRectangle.draw();
+        rightTriangle.draw();
+
         // cache
         glfwSwapBuffers(window);
         glfwPollEvents();

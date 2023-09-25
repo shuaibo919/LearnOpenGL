@@ -76,18 +76,22 @@ GLuint GLBasicShaderObject::getShaderProgram()
 }
 void GLBasicShaderObject::setUniform(const std::string &name, int value)
 {
+    glUseProgram(m_shaderProgram);
     glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
 }
 void GLBasicShaderObject::setUniform(const std::string &name, float value)
 {
+    glUseProgram(m_shaderProgram);
     glUniform1f(glGetUniformLocation(m_shaderProgram, name.c_str()), value);
 }
 void GLBasicShaderObject::setUniform(const std::string &name, bool value)
 {
+    glUseProgram(m_shaderProgram);
     glUniform1i(glGetUniformLocation(m_shaderProgram, name.c_str()), (int)value);
 }
 void GLBasicShaderObject::setUniform(const std::string &name, GLBasicColor value)
 {
+    glUseProgram(m_shaderProgram);
     glUniform4f(glGetUniformLocation(m_shaderProgram, name.c_str()), value.r, value.g, value.b, value.a);
 }
 GLBasicShaderObject::~GLBasicShaderObject()
@@ -134,6 +138,49 @@ GLBasicTriangle::~GLBasicTriangle()
 {
     deleteObject();
 }
+
+// GLVertexTriangle OPENGL顶点三角形对象
+GLVertexTriangle::GLVertexTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3,
+    const GLBasicColor &color1,const GLBasicColor &color2, const GLBasicColor &color3, std::string glsl_file_path)
+:m_vertices{point1.x,point1.y,point1.z,color1.r,color1.g,color1.b,
+            point2.x,point2.y,point2.z,color2.r,color2.g,color2.b,
+            point3.x,point3.y,point3.z,color3.r,color3.g,color3.b}, GLBasicShaderObject(glsl_file_path)
+{
+    // 绑定至VAO
+    glGenVertexArrays(1, &m_VAO);
+    glGenBuffers(1, &m_VBO);
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices), m_vertices, GL_STATIC_DRAW);
+
+    // 链接顶点属性
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // 解绑VAO & VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+                    
+}
+void GLVertexTriangle::draw()
+{
+    glUseProgram(getShaderProgram());
+    glBindVertexArray(m_VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindVertexArray(0);
+}
+void GLVertexTriangle::deleteObject()
+{
+    glDeleteVertexArrays(1, &m_VAO);
+    glDeleteBuffers(1, &m_VBO);
+}
+GLVertexTriangle::~GLVertexTriangle()
+{
+    deleteObject();
+}
+
 
 // GLBasicRectangle OPENGL基本矩形对象
 
