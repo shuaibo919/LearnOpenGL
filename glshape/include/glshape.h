@@ -37,6 +37,7 @@ public:
     ~GLBasicShaderObject();
 };
 
+
 class GLBasicTriangle : public GLBasicShaderObject
 {
 private:
@@ -84,6 +85,26 @@ public:
     void draw();
     void deleteObject();
     ~GLBasicRectangle();
+};
+
+class GLTextureRectangle : public GLBasicShaderObject
+{
+    private:
+        // vertices property
+        float m_vertices[32];
+        GLuint m_VAO;
+        GLuint m_VBO;
+        GLuint m_EBO;
+
+    public:
+    GLTextureRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4,
+                      const GLBasicColor &color1, const GLBasicColor &color2, const GLBasicColor &color3, const GLBasicColor &color4, 
+                      std::string glsl_file_path = "resource/shader/textureobj");
+    void draw();
+    void draw(GLuint textureId);
+    void deleteObject();
+                      
+    ~GLTextureRectangle();
 };
 
 #endif

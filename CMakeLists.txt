@@ -8,6 +8,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 # FOR IGNORE WARNING
 set(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"Libcmtd.lib")
 
+# 3RDPARTY 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/include)
+
 # OPENGL GLFW
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/glfw/include/GLFW)
 if(${MSVC_VERSION} LESS 1930)

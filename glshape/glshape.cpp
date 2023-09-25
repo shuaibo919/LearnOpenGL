@@ -141,10 +141,11 @@ GLBasicTriangle::~GLBasicTriangle()
 
 // GLVertexTriangle OPENGL顶点三角形对象
 GLVertexTriangle::GLVertexTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3,
-    const GLBasicColor &color1,const GLBasicColor &color2, const GLBasicColor &color3, std::string glsl_file_path)
-:m_vertices{point1.x,point1.y,point1.z,color1.r,color1.g,color1.b,
-            point2.x,point2.y,point2.z,color2.r,color2.g,color2.b,
-            point3.x,point3.y,point3.z,color3.r,color3.g,color3.b}, GLBasicShaderObject(glsl_file_path)
+                                   const GLBasicColor &color1,const GLBasicColor &color2, const GLBasicColor &color3, 
+                                   std::string glsl_file_path)
+    :m_vertices{point1.x,point1.y,point1.z,color1.r,color1.g,color1.b,
+                point2.x,point2.y,point2.z,color2.r,color2.g,color2.b,
+                point3.x,point3.y,point3.z,color3.r,color3.g,color3.b}, GLBasicShaderObject(glsl_file_path)
 {
     // 绑定至VAO
     glGenVertexArrays(1, &m_VAO);
@@ -222,6 +223,61 @@ void GLBasicRectangle::deleteObject()
     glDeleteBuffers(1, &m_EBO);
 }
 GLBasicRectangle::~GLBasicRectangle()
+{
+    deleteObject();
+}
+
+GLTextureRectangle::GLTextureRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4, 
+                                       const GLBasicColor &color1, const GLBasicColor &color2, const GLBasicColor &color3, const GLBasicColor &color4, 
+                                       std::string glsl_file_path)
+:m_vertices{point1.x, point1.y, point1.z, color1.r, color1.g, color1.b, 0.0f, 1.0f, // 左上
+            point2.x, point2.y, point2.z, color2.r, color2.g, color2.b, 1.0f, 1.0f, // 右上
+            point3.x, point3.y, point3.z, color3.r, color3.g, color3.b, 0.0f, 0.0f, // 左下
+            point4.x, point4.y, point4.z, color4.r, color4.g, color4.b, 1.0f, 0.0f}, GLBasicShaderObject(glsl_file_path)
+{
+    GLuint indices[] = {0, 1, 2, 1, 2, 3};
+    // 绑定至VAO,VBO,EBO
+    glGenVertexArrays(1,&m_VAO);
+    glGenBuffers(1, &m_VBO);
+    glGenBuffers(1, &m_EBO);
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices), m_vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // 链接顶点属性
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    // 解绑VAO & VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+void GLTextureRectangle::draw()
+{
+    glUseProgram(getShaderProgram());
+    glBindVertexArray(m_VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+void GLTextureRectangle::draw(GLuint textureId)
+{
+    glUseProgram(getShaderProgram());
+    glBindTexture(GL_TEXTURE_2D,textureId);
+    glBindVertexArray(m_VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+void GLTextureRectangle::deleteObject()
+{
+    glDeleteVertexArrays(1, &m_VAO);
+    glDeleteBuffers(1, &m_VBO);
+    glDeleteBuffers(1,&m_EBO);
+}
+GLTextureRectangle::~GLTextureRectangle()
 {
     deleteObject();
 }

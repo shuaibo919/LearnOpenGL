@@ -1,12 +1,15 @@
-﻿// lib header
+﻿// std-lib
 #include <iostream>
+#include <cmath>
+// gl-lib
 #include "glad/glad.h"
 #include "KHR/khrplatform.h"
 #include "glfw3.h"
-
+// 3rdparty header
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 // seld header
 #include "glshape.h"
-#include <cmath>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -41,11 +44,35 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
     GLBasicTriangle topTriangle({0.0f, 0.0f}, {0.2f, 0.2f}, {-0.2f, 0.2f}, GLBasicColor(0.4f, 0.2f, 0.3f));
     GLBasicTriangle bottomTriangle({0.0f, 0.0f}, {0.2f, -0.2f}, {-0.2f, -0.2f}, GLBasicColor(0.4f, 0.4f, 0.1f, 0.5f));
     GLBasicRectangle leftRectangle({-0.8f, 0.8f}, {-0.4f, 0.8f}, {-0.8f, 0.4f}, {-0.4f, 0.4f}, GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f));
-    GLVertexTriangle rightTriangle({0.5f,0.0f},{0.3f,-0.25f},{0.7f,-0.25f},GLBasicColor(0.8f, 0.2f, 0.3f),GLBasicColor(0.4f, 0.9f, 0.1f),GLBasicColor(0.1f, 0.1f, 0.9f));
+    GLVertexTriangle rightTriangle({0.5f,0.2f},{0.3f,-0.05f},{0.7f,-0.05f},GLBasicColor(0.8f, 0.2f, 0.3f),GLBasicColor(0.4f, 0.9f, 0.1f),GLBasicColor(0.1f, 0.1f, 0.9f));
+    GLTextureRectangle rightRectangle({0.5f,-0.2f},{0.9f,-0.2f},{0.5f,-0.6f},{0.9f,-0.6f},
+                                      GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f),GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f),
+                                      GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f),GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f));
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // 为当前绑定的纹理对象设置环绕、过滤方式
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // 加载并生成纹理
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("resource/img/container.jpg", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -63,6 +90,7 @@ int main()
         bottomTriangle.draw();
         leftRectangle.draw();
         rightTriangle.draw();
+        rightRectangle.draw(texture);
 
         // cache
         glfwSwapBuffers(window);
