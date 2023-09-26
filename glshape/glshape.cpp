@@ -1,6 +1,7 @@
 ﻿#include "glshape.h"
 #include <sstream>
 #include <fstream>
+#include <gtc/type_ptr.hpp>
 // GLBasicFillObject OPENGL基本纹理对象
 GLBasicShaderObject::GLBasicShaderObject(std::string glsl_file_path)
 {
@@ -92,6 +93,11 @@ void GLBasicShaderObject::setUniform(const std::string &name, GLBasicColor value
 {
     glUseProgram(m_shaderProgram);
     glUniform4f(glGetUniformLocation(m_shaderProgram, name.c_str()), value.r, value.g, value.b, value.a);
+}
+void GLBasicShaderObject::setUniform(const std::string &name, glm::mat4 mat4)
+{
+    glUseProgram(m_shaderProgram);
+    glUniformMatrix4fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat4));
 }
 GLBasicShaderObject::~GLBasicShaderObject()
 {

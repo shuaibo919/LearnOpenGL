@@ -8,8 +8,14 @@
 // 3rdparty header
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 // seld header
 #include "glshape.h"
+
+
+
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -45,19 +51,26 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-    GLBasicTriangle topTriangle({0.0f, 0.0f}, {0.2f, 0.2f}, {-0.2f, 0.2f}, GLBasicColor(0.4f, 0.2f, 0.3f));
-    GLBasicTriangle bottomTriangle({0.0f, 0.0f}, {0.2f, -0.2f}, {-0.2f, -0.2f}, GLBasicColor(0.4f, 0.4f, 0.1f, 0.5f));
+
+    GLBasicTriangle topTriangle({-0.6f, 0.0f}, {-0.4f, 0.2f}, {-0.8f, 0.2f}, GLBasicColor(0.4f, 0.2f, 0.3f));
+    GLBasicTriangle bottomTriangle({-0.6f, 0.0f}, {-0.4f, -0.2f}, {-0.8f, -0.2f}, GLBasicColor(0.4f, 0.4f, 0.1f, 0.5f));
     GLBasicRectangle leftRectangle({-0.8f, 0.8f}, {-0.4f, 0.8f}, {-0.8f, 0.4f}, {-0.4f, 0.4f}, GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f));
-    GLVertexTriangle rightTriangle({0.5f,0.2f},{0.3f,-0.05f},{0.7f,-0.05f},GLBasicColor(0.8f, 0.2f, 0.3f),GLBasicColor(0.4f, 0.9f, 0.1f),GLBasicColor(0.1f, 0.1f, 0.9f));
-    GLTextureRectangle rightRectangle({0.5f,-0.2f},{0.9f,-0.2f},{0.5f,-0.6f},{0.9f,-0.6f},
+    GLVertexTriangle rightTriangle({-0.5f,-0.3f},{-0.3f,-0.65f},{-0.7f,-0.65f},GLBasicColor(0.8f, 0.2f, 0.3f),GLBasicColor(0.4f, 0.9f, 0.1f),GLBasicColor(0.1f, 0.1f, 0.9f));
+    GLTextureRectangle centerRectangle({-0.2f,0.2f},{0.2f,0.2f},{-0.2f,-0.2f},{0.2f,-0.2f},
                                       GLBasicColor(0.1f, 0.5f, 0.9f),GLBasicColor(0.1f, 0.6f, 0.6f),
                                       GLBasicColor(0.1f, 0.9f, 0.3f),GLBasicColor(0.9f, 0.2f, 0.6f));
 
+    GLTextureRectangle secondRectangle({-0.2f,0.2f},{0.2f,0.2f},{-0.2f,-0.2f},{0.2f,-0.2f},
+                                      GLBasicColor(0.1f, 0.5f, 0.9f),GLBasicColor(0.1f, 0.6f, 0.6f),
+                                      GLBasicColor(0.1f, 0.9f, 0.3f),GLBasicColor(0.9f, 0.2f, 0.6f));
+    
     GLuint woodTexture = loadTexture("resource/img/container.jpg",GL_RGB);
     GLuint faceTexture = loadTexture("resource/img/awesomeface.png",GL_RGBA);
     auto textures = std::vector<GLuint>({woodTexture,faceTexture});
-    rightRectangle.setUniform("texture1",0);
-    rightRectangle.setUniform("texture2",1);
+    centerRectangle.setUniform("texture1",0);
+    centerRectangle.setUniform("texture2",1);
+    secondRectangle.setUniform("texture1",0);
+    secondRectangle.setUniform("texture2",1);
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -75,9 +88,22 @@ int main()
         bottomTriangle.draw();
         leftRectangle.draw();
         rightTriangle.draw();
-        rightRectangle.draw(textures);
+        secondRectangle.draw();
+        // rotate
+        glm::mat4 trans(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
+        centerRectangle.setUniform("transform",trans);
+        centerRectangle.draw(textures); 
 
-        // cache
+        // scaling
+        glm::mat4 scaling(1.0f);
+        scaling = glm::translate(scaling, glm::vec3(0.5f, 0.5f, 0.0f));
+        float abs_sin_value = abs(sin(timeValue));
+        scaling = glm::scale(scaling,glm::vec3(abs_sin_value,abs_sin_value,abs_sin_value));
+        secondRectangle.setUniform("transform",scaling);
+
+        // swap cache
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

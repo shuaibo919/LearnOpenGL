@@ -6,6 +6,7 @@
 #include "glfw3.h"
 #include <iostream>
 #include <vector>
+#include <glm.hpp>
 struct GLBsicPoint
 {
     float x;
@@ -31,10 +32,11 @@ private:
 public:
     GLBasicShaderObject(std::string glsl_file_path);
     GLuint getShaderProgram();
-    void setUniform(const std::string &name, int value);
+    void setUniform(const std::string &name, int value); 
     void setUniform(const std::string &name, float value);
     void setUniform(const std::string &name, bool value);
     void setUniform(const std::string &name, GLBasicColor value);
+    void setUniform(const std::string &name, glm::mat4 mat4);
     ~GLBasicShaderObject();
 };
 
@@ -107,5 +109,7 @@ class GLTextureRectangle : public GLBasicShaderObject
                       
     ~GLTextureRectangle();
 };
+
+
 
 #endif
