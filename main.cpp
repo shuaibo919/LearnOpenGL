@@ -52,13 +52,15 @@ int main()
         return -1;
     }
 
+    // cube类
     GLTextureCube cube = GLTextureCube();
-
+    // 加载并绑定纹理
     GLuint woodTexture = loadTexture("resource/img/container.jpg",GL_RGB);
-    GLuint faceTexture = loadTexture("resource/img/awesomeface.png",GL_RGBA);
+    GLuint faceTexture = loadTexture("resource/img/texture.jpg",GL_RGB);
     auto textures = std::vector<GLuint>({woodTexture,faceTexture});
     cube.setUniform("texture1",0);
     cube.setUniform("texture2",1);
+    // 生成十个不同的cube对象
     glEnable(GL_DEPTH_TEST);
     glm::vec3 cubePositions[] = {
         glm::vec3( 0.0f,  0.0f,  0.0f), 
@@ -78,8 +80,8 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
-        // render
-        glClearColor(0.2f, 0.6f, 0.3f, 1.0f);
+        // render 176,168,185
+        glClearColor(0.69f, 0.66f, 0.72f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // view
@@ -93,6 +95,11 @@ int main()
             model = glm::translate(model, cubePositions[i]);
             float angle = 20.0f * i; 
             model = glm::rotate(model, angle + (float)glfwGetTime() * glm::radians(50.0f) * (i!=0), glm::vec3(1.0f, 0.3f, 0.5f));
+            // 摄像机
+            float radius = 10.0f;
+            float camX = sin(glfwGetTime()) * radius;
+            float camZ = cos(glfwGetTime()) * radius;
+            view = glm::lookAt(glm::vec3(camX, 0.0, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0)); 
             cube.setUniform("model",model);
             cube.setUniform("view",view);
             cube.setUniform("projection",projection);
