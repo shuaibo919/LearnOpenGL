@@ -52,52 +52,57 @@ int main()
         return -1;
     }
 
-    GLTextureCube cube = GLTextureCube();
+    GLBasicTriangle topTriangle({-0.6f, 0.0f}, {-0.4f, 0.2f}, {-0.8f, 0.2f}, GLBasicColor(0.4f, 0.2f, 0.3f));
+    GLBasicTriangle bottomTriangle({-0.6f, 0.0f}, {-0.4f, -0.2f}, {-0.8f, -0.2f}, GLBasicColor(0.4f, 0.4f, 0.1f, 0.5f));
+    GLBasicRectangle leftRectangle({-0.8f, 0.8f}, {-0.4f, 0.8f}, {-0.8f, 0.4f}, {-0.4f, 0.4f}, GLBasicColor(0.2f, 0.6f, 0.6f, 0.5f));
+    GLVertexTriangle rightTriangle({-0.5f,-0.3f},{-0.3f,-0.65f},{-0.7f,-0.65f},GLBasicColor(0.8f, 0.2f, 0.3f),GLBasicColor(0.4f, 0.9f, 0.1f),GLBasicColor(0.1f, 0.1f, 0.9f));
+    GLTextureRectangle centerRectangle({-0.2f,0.2f},{0.2f,0.2f},{-0.2f,-0.2f},{0.2f,-0.2f},
+                                      GLBasicColor(0.1f, 0.5f, 0.9f),GLBasicColor(0.1f, 0.6f, 0.6f),
+                                      GLBasicColor(0.1f, 0.9f, 0.3f),GLBasicColor(0.9f, 0.2f, 0.6f));
 
+    GLTextureRectangle secondRectangle({-0.2f,0.2f},{0.2f,0.2f},{-0.2f,-0.2f},{0.2f,-0.2f},
+                                      GLBasicColor(0.1f, 0.5f, 0.9f),GLBasicColor(0.1f, 0.6f, 0.6f),
+                                      GLBasicColor(0.1f, 0.9f, 0.3f),GLBasicColor(0.9f, 0.2f, 0.6f));
+    
     GLuint woodTexture = loadTexture("resource/img/container.jpg",GL_RGB);
     GLuint faceTexture = loadTexture("resource/img/awesomeface.png",GL_RGBA);
     auto textures = std::vector<GLuint>({woodTexture,faceTexture});
-    cube.setUniform("texture1",0);
-    cube.setUniform("texture2",1);
-    glEnable(GL_DEPTH_TEST);
-    glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f), 
-        glm::vec3( 2.0f,  5.0f, -15.0f), 
-        glm::vec3(-1.5f, -2.2f, -2.5f),  
-        glm::vec3(-3.8f, -2.0f, -12.3f),  
-        glm::vec3( 2.4f, -0.4f, -3.5f),  
-        glm::vec3(-1.7f,  3.0f, -7.5f),  
-        glm::vec3( 1.3f, -2.0f, -2.5f),  
-        glm::vec3( 1.5f,  2.0f, -2.5f), 
-        glm::vec3( 1.5f,  0.2f, -1.5f), 
-        glm::vec3(-1.3f,  1.0f, -1.5f)  
-    };
-
-
+    centerRectangle.setUniform("texture1",0);
+    centerRectangle.setUniform("texture2",1);
+    secondRectangle.setUniform("texture1",0);
+    secondRectangle.setUniform("texture2",1);
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
         // render
         glClearColor(0.2f, 0.6f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
+        // draw triangle
+        float timeValue = glfwGetTime();
+        float rvalue = sin(timeValue) / 2.0f + 0.4f;
+        float gvalue = cos(timeValue) / 2.0f + 0.3f;
+        float bvalue = sin(timeValue * 1.5f) / 2.0f + 0.5f;
+        topTriangle.setUniform("mFragmentColor",GLBasicColor(rvalue,gvalue,bvalue));
+        topTriangle.draw();
+        bottomTriangle.draw();
+        leftRectangle.draw();
+        rightTriangle.draw();
+        secondRectangle.draw();
+        // rotate
+        glm::mat4 trans(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, timeValue, glm::vec3(0.0f, 0.0f, 1.0f));
+        centerRectangle.setUniform("transform",trans);
+        centerRectangle.draw(textures); 
 
-        // view
-        glm::mat4 view          = glm::mat4(1.0f);
-        glm::mat4 projection    = glm::mat4(1.0f);
-        view  = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        for(unsigned int i = 0; i < 10; i++)
-        {
-            glm::mat4 model = glm::mat4(1.0f); 
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i; 
-            model = glm::rotate(model, angle + (float)glfwGetTime() * glm::radians(50.0f) * (i!=0), glm::vec3(1.0f, 0.3f, 0.5f));
-            cube.setUniform("model",model);
-            cube.setUniform("view",view);
-            cube.setUniform("projection",projection);
-            cube.draw(textures);
-        }
+        // scaling
+        glm::mat4 scaling(1.0f);
+        scaling = glm::translate(scaling, glm::vec3(0.5f, 0.5f, 0.0f));
+        float abs_sin_value = abs(sin(timeValue));
+        scaling = glm::scale(scaling,glm::vec3(abs_sin_value,abs_sin_value,abs_sin_value));
+        secondRectangle.setUniform("transform",scaling);
+
         // swap cache
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -131,7 +136,6 @@ GLuint loadTexture(const char* file_path, GLuint internalFormat)
     // 加载并生成纹理
     int width, height, nrChannels;
     unsigned char *data = stbi_load(file_path, &width, &height, &nrChannels, 0);
-    stbi_set_flip_vertically_on_load(true);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, data);

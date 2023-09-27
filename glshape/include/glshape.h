@@ -40,7 +40,6 @@ public:
     ~GLBasicShaderObject();
 };
 
-
 class GLBasicTriangle : public GLBasicShaderObject
 {
 private:
@@ -110,6 +109,20 @@ class GLTextureRectangle : public GLBasicShaderObject
     ~GLTextureRectangle();
 };
 
+
+class GLTextureCube: public GLBasicShaderObject{
+    private:
+        float m_vertices[180];
+        GLuint m_VAO;
+        GLuint m_VBO;
+    public:
+    GLTextureCube(std::string glsl_file_path = "resource/shader/cube");
+    void draw();
+    void draw(std::vector<GLuint> textureIds);
+    void deleteObject();
+    ~GLTextureCube();
+
+};
 
 
 #endif
