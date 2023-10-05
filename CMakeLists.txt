@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(test)
 
 set(CMAKE_BUILD_TYPE "Debug")
-file(GLOB src ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+set(LEARNING_CHAPTER 2)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 
 # FOR IGNORE WARNING
@@ -29,4 +29,7 @@ file(GLOB gl_shape_src ${CMAKE_CURRENT_SOURCE_DIR}/glshape/*.cpp)
 
 # target_link_libraries(glfw3)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-add_executable(test  ${glad_src} ${gl_shape_src} ${src})
+
+# output exectuable
+file(GLOB src ${CMAKE_CURRENT_SOURCE_DIR}/learning_content/chapter_${LEARNING_CHAPTER}.cpp)
+add_executable(chapter${LEARNING_CHAPTER}  ${glad_src} ${gl_shape_src} ${src})
