@@ -104,8 +104,8 @@ public:
         m_zoom -= (float)yoffset;
         if (m_zoom < 1.0f)
             m_zoom = 1.0f;
-        if (m_zoom > 45.0f)
-            m_zoom = 45.0f;
+        if (m_zoom > 65.0f)
+            m_zoom = 65.0f;
     }
 };
 

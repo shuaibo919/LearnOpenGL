@@ -99,6 +99,11 @@ void GLBasicShaderObject::setUniform(const std::string &name, glm::mat4 mat4)
     glUseProgram(m_shaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat4));
 }
+void GLBasicShaderObject::setUniform(const std::string &name, glm::vec3 vec3)
+{
+    glUseProgram(m_shaderProgram);
+    glUniform3fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, glm::value_ptr(vec3));
+}
 GLBasicShaderObject::~GLBasicShaderObject()
 {
     glDeleteProgram(m_shaderProgram);
@@ -146,11 +151,12 @@ GLBasicTriangle::~GLBasicTriangle()
 
 // GLVertexTriangle OPENGL顶点三角形对象
 GLVertexTriangle::GLVertexTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3,
-                                   const GLBasicColor &color1,const GLBasicColor &color2, const GLBasicColor &color3, 
+                                   const GLBasicColor &color1, const GLBasicColor &color2, const GLBasicColor &color3,
                                    std::string glsl_file_path)
-    :m_vertices{point1.x,point1.y,point1.z,color1.r,color1.g,color1.b,
-                point2.x,point2.y,point2.z,color2.r,color2.g,color2.b,
-                point3.x,point3.y,point3.z,color3.r,color3.g,color3.b}, GLBasicShaderObject(glsl_file_path)
+    : m_vertices{point1.x, point1.y, point1.z, color1.r, color1.g, color1.b,
+                 point2.x, point2.y, point2.z, color2.r, color2.g, color2.b,
+                 point3.x, point3.y, point3.z, color3.r, color3.g, color3.b},
+      GLBasicShaderObject(glsl_file_path)
 {
     // 绑定至VAO
     glGenVertexArrays(1, &m_VAO);
@@ -162,13 +168,12 @@ GLVertexTriangle::GLVertexTriangle(const GLBsicPoint &point1, const GLBsicPoint 
     // 链接顶点属性
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     // 解绑VAO & VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-                    
 }
 void GLVertexTriangle::draw()
 {
@@ -186,7 +191,6 @@ GLVertexTriangle::~GLVertexTriangle()
 {
     deleteObject();
 }
-
 
 // GLBasicRectangle OPENGL基本矩形对象
 
@@ -232,17 +236,18 @@ GLBasicRectangle::~GLBasicRectangle()
     deleteObject();
 }
 
-GLTextureRectangle::GLTextureRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4, 
-                                       const GLBasicColor &color1, const GLBasicColor &color2, const GLBasicColor &color3, const GLBasicColor &color4, 
+GLTextureRectangle::GLTextureRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4,
+                                       const GLBasicColor &color1, const GLBasicColor &color2, const GLBasicColor &color3, const GLBasicColor &color4,
                                        std::string glsl_file_path)
-:m_vertices{point1.x, point1.y, point1.z, color1.r, color1.g, color1.b, 0.0f, 1.0f, // 左上
-            point2.x, point2.y, point2.z, color2.r, color2.g, color2.b, 1.0f, 1.0f, // 右上
-            point3.x, point3.y, point3.z, color3.r, color3.g, color3.b, 0.0f, 0.0f, // 左下
-            point4.x, point4.y, point4.z, color4.r, color4.g, color4.b, 1.0f, 0.0f}, GLBasicShaderObject(glsl_file_path)
+    : m_vertices{point1.x, point1.y, point1.z, color1.r, color1.g, color1.b, 0.0f, 1.0f, // 左上
+                 point2.x, point2.y, point2.z, color2.r, color2.g, color2.b, 1.0f, 1.0f, // 右上
+                 point3.x, point3.y, point3.z, color3.r, color3.g, color3.b, 0.0f, 0.0f, // 左下
+                 point4.x, point4.y, point4.z, color4.r, color4.g, color4.b, 1.0f, 0.0f},
+      GLBasicShaderObject(glsl_file_path)
 {
     GLuint indices[] = {0, 1, 2, 1, 2, 3};
     // 绑定至VAO,VBO,EBO
-    glGenVertexArrays(1,&m_VAO);
+    glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
     glGenBuffers(1, &m_EBO);
     glBindVertexArray(m_VAO);
@@ -253,9 +258,9 @@ GLTextureRectangle::GLTextureRectangle(const GLBsicPoint &point1, const GLBsicPo
     // 链接顶点属性
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
     // 解绑VAO & VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -271,9 +276,10 @@ void GLTextureRectangle::draw()
 void GLTextureRectangle::draw(std::vector<GLuint> textureIds)
 {
     glUseProgram(getShaderProgram());
-    for(GLuint i=0;i<textureIds.size();++i){
-        glActiveTexture(GL_TEXTURE0 + i );
-        glBindTexture(GL_TEXTURE_2D,textureIds[i]);
+    for (GLuint i = 0; i < textureIds.size(); ++i)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, textureIds[i]);
     }
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -283,61 +289,60 @@ void GLTextureRectangle::deleteObject()
 {
     glDeleteVertexArrays(1, &m_VAO);
     glDeleteBuffers(1, &m_VBO);
-    glDeleteBuffers(1,&m_EBO);
+    glDeleteBuffers(1, &m_EBO);
 }
 GLTextureRectangle::~GLTextureRectangle()
 {
     deleteObject();
 }
 
-
 // GLTextureCube OPENGL基本立方体对象
-GLTextureCube::GLTextureCube(std::string glsl_file_path):m_vertices{
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+GLTextureCube::GLTextureCube(std::string glsl_file_path) : m_vertices{
+                                                               -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+                                                               0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+                                                               0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+                                                               0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+                                                               -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+                                                               -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+                                                               -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+                                                               0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+                                                               0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+                                                               0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+                                                               -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+                                                               -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                                                               -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+                                                               -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+                                                               -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+                                                               -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+                                                               -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+                                                               -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+                                                               0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+                                                               0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+                                                               0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+                                                               0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+                                                               0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+                                                               0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+                                                               -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+                                                               0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+                                                               0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+                                                               0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+                                                               -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+                                                               -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    },GLBasicShaderObject(glsl_file_path)
+                                                               -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+                                                               0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+                                                               0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+                                                               0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+                                                               -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+                                                               -0.5f, 0.5f, -0.5f, 0.0f, 1.0f},
+                                                           GLBasicShaderObject(glsl_file_path)
 {
     // 绑定至VAO,VBO
-    glGenVertexArrays(1,&m_VAO);
+    glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
@@ -345,7 +350,7 @@ GLTextureCube::GLTextureCube(std::string glsl_file_path):m_vertices{
     // 链接顶点属性
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     // 解绑VAO & VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -363,9 +368,10 @@ void GLTextureCube::draw()
 void GLTextureCube::draw(std::vector<GLuint> textureIds)
 {
     glUseProgram(getShaderProgram());
-    for(GLuint i=0;i<textureIds.size();++i){
-        glActiveTexture(GL_TEXTURE0 + i );
-        glBindTexture(GL_TEXTURE_2D,textureIds[i]);
+    for (GLuint i = 0; i < textureIds.size(); ++i)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, textureIds[i]);
     }
     glBindVertexArray(m_VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -379,6 +385,85 @@ void GLTextureCube::deleteObject()
 }
 
 GLTextureCube::~GLTextureCube()
+{
+    deleteObject();
+}
+
+// GLLighterCube OPENGL基本光照立方体对象
+
+GLLighterCube::GLLighterCube(std::string glsl_file_path) : m_vertices{
+                                                               -0.5f, -0.5f, -0.5f,
+                                                               0.5f, -0.5f, -0.5f,
+                                                               0.5f, 0.5f, -0.5f,
+                                                               0.5f, 0.5f, -0.5f,
+                                                               -0.5f, 0.5f, -0.5f,
+                                                               -0.5f, -0.5f, -0.5f,
+
+                                                               -0.5f, -0.5f, 0.5f,
+                                                               0.5f, -0.5f, 0.5f,
+                                                               0.5f, 0.5f, 0.5f,
+                                                               0.5f, 0.5f, 0.5f,
+                                                               -0.5f, 0.5f, 0.5f,
+                                                               -0.5f, -0.5f, 0.5f,
+
+                                                               -0.5f, 0.5f, 0.5f,
+                                                               -0.5f, 0.5f, -0.5f,
+                                                               -0.5f, -0.5f, -0.5f,
+                                                               -0.5f, -0.5f, -0.5f,
+                                                               -0.5f, -0.5f, 0.5f,
+                                                               -0.5f, 0.5f, 0.5f,
+
+                                                               0.5f, 0.5f, 0.5f,
+                                                               0.5f, 0.5f, -0.5f,
+                                                               0.5f, -0.5f, -0.5f,
+                                                               0.5f, -0.5f, -0.5f,
+                                                               0.5f, -0.5f, 0.5f,
+                                                               0.5f, 0.5f, 0.5f,
+
+                                                               -0.5f, -0.5f, -0.5f,
+                                                               0.5f, -0.5f, -0.5f,
+                                                               0.5f, -0.5f, 0.5f,
+                                                               0.5f, -0.5f, 0.5f,
+                                                               -0.5f, -0.5f, 0.5f,
+                                                               -0.5f, -0.5f, -0.5f,
+
+                                                               -0.5f, 0.5f, -0.5f,
+                                                               0.5f, 0.5f, -0.5f,
+                                                               0.5f, 0.5f, 0.5f,
+                                                               0.5f, 0.5f, 0.5f,
+                                                               -0.5f, 0.5f, 0.5f,
+                                                               -0.5f, 0.5f, -0.5f},
+                                                           GLBasicShaderObject(glsl_file_path)
+{
+    // 绑定至VAO,VBO
+    glGenVertexArrays(1, &m_VAO);
+    glGenBuffers(1, &m_VBO);
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(m_vertices), m_vertices, GL_STATIC_DRAW);
+    // 链接顶点属性
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    // 解绑VAO & VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void GLLighterCube::draw()
+{
+    glUseProgram(getShaderProgram());
+    glBindVertexArray(m_VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+void GLLighterCube::deleteObject()
+{
+    glDeleteVertexArrays(1, &m_VAO);
+    glDeleteBuffers(1, &m_VBO);
+}
+
+GLLighterCube::~GLLighterCube()
 {
     deleteObject();
 }
