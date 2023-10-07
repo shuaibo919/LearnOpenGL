@@ -51,8 +51,6 @@ int main()
     GLLighterCube lighter = GLLighterCube("resource/shader/chapter_2/lighter");
     cube.setUniform("objectColor", glm::vec3(0.2f, 0.5f, 0.21f));
     cube.setUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    // 光照位置
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
     // Render Loop
     while (!glfwWindowShouldClose(window))
@@ -67,6 +65,8 @@ int main()
         glm::mat4 view = camera.viewMatrix();
         glm::mat4 projection = camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT);
         // lighter
+        float timeValue = glfwGetTime();
+        glm::vec3 lightPos(sin(timeValue)*2.0f, cos(timeValue)*2.0f, 0.0f);
         lighter.setUniform("projection", projection);
         lighter.setUniform("view", view);
         glm::mat4 model = glm::translate(glm::mat4(1.0f), lightPos);
@@ -79,6 +79,7 @@ int main()
         model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
         cube.setUniform("model", model);
         cube.setUniform("lightPos", lightPos);
+        //cube.setUniform("viewPos",camera.positionVector());
         cube.draw();
         // swap cache
         glfwSwapBuffers(window);
