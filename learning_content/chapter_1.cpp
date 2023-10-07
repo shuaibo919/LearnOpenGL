@@ -1,23 +1,8 @@
-﻿// std-lib
-#include <iostream>
-#include <cmath>
-// gl-lib
-#include "glad/glad.h"
-#include "KHR/khrplatform.h"
-#include "glfw3.h"
-// 3rdparty header
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
-// seld header
+﻿// self header
 #include "glshape.h"
 #include "glcamera.h"
+#include "glutils.h"
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void processInput(GLFWwindow *window);
-GLuint loadTexture(const char *file_path, GLuint internalFormat);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
 // settings
@@ -46,24 +31,12 @@ GLBasicCamera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 int main()
 {
     // 初始化
-    glfwInit();
-    // 设置主版本号 3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    // 设置副版本号 3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // GLFW_OPENGL_CORE_PROFILE 对应核心模式
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow *window = glfwCreateWindow(SRC_WIDTH, SRC_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
+    GLFWwindow *window = nullptr;
+    if (glfwgladInitialization(&window, SRC_WIDTH, SRC_HEIGHT) == -1)
         return -1;
-    }
-    // 设置当前上下文
-    glfwMakeContextCurrent(window);
+
     // 设置回调函数
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
@@ -130,24 +103,6 @@ int main()
     return 0;
 }
 
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.processDirection(CameraMovement::FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.processDirection(CameraMovement::BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.processDirection(CameraMovement::LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.processDirection(CameraMovement::RIGHT, deltaTime);
-}
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
@@ -174,30 +129,4 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
 {
     camera.processMouseScroll(static_cast<float>(yoffset));
-}
-GLuint loadTexture(const char *file_path, GLuint internalFormat)
-{
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // 为当前绑定的纹理对象设置环绕、过滤方式
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // 加载并生成纹理
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load(file_path, &width, &height, &nrChannels, 0);
-    stbi_set_flip_vertically_on_load(true);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-    return texture;
 }

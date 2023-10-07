@@ -141,7 +141,7 @@ public:
     ~GLLighterCube();
 };
 
-class GLLightingCube: public GLBasicShaderObject
+class GLLightingCube : public GLBasicShaderObject
 {
 private:
     float m_vertices[288];
@@ -151,9 +151,9 @@ private:
 public:
     GLLightingCube(std::string glsl_file_path = "resource/shader/chapter_2/lighter_cube");
     void draw();
+    void draw(std::vector<GLuint> textureIds);
     void deleteObject();
     ~GLLightingCube();
 };
-
 
 #endif
