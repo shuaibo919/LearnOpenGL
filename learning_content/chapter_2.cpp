@@ -56,7 +56,6 @@ int main()
     cube.setUniform("material.diffuse",  glm::vec3(1.0f, 0.5f, 0.31f));
     cube.setUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
     cube.setUniform("material.shininess", 32.0f);
-    float timeValue = glfwGetTime();
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -70,6 +69,7 @@ int main()
         glm::mat4 view = camera.viewMatrix();
         glm::mat4 projection = camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT);
         // lighter
+        float timeValue = glfwGetTime();
         glm::vec3 lightPos(sin(timeValue)*2.0f, cos(timeValue)*2.0f, 0.0f);
         lighter.setUniform("projection", projection);
         lighter.setUniform("view", view);
@@ -83,6 +83,7 @@ int main()
         model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
         cube.setUniform("model", model);
         cube.setUniform("light.position", lightPos);
+        cube.setUniform("viewPos",camera.positionVector());
         cube.draw();
         // swap cache
         glfwSwapBuffers(window);
