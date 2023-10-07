@@ -11,7 +11,9 @@ enum class CameraMovement
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN
 };
 
 constexpr float YAW = -90.0f;
@@ -65,7 +67,7 @@ public:
         return glm::perspective(glm::radians(m_zoom), (float)src_width / (float)src_height, 0.1f, 100.0f);
     }
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-    void processKeyboard(CameraMovement direction, float deltaTime)
+    void processDirection(CameraMovement direction, float deltaTime)
     {
         float cameraSpeed = static_cast<float>(2.5 * deltaTime);
         if (direction == CameraMovement::FORWARD)
@@ -76,6 +78,10 @@ public:
             m_position -= m_right * cameraSpeed;
         if (direction == CameraMovement::RIGHT)
             m_position += m_right * cameraSpeed;
+        if(direction == CameraMovement::UP)
+            m_position += m_up * cameraSpeed;
+        if(direction == CameraMovement::DOWN)
+            m_position -= m_up * cameraSpeed;
     }
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
@@ -104,8 +110,8 @@ public:
         m_zoom -= (float)yoffset;
         if (m_zoom < 1.0f)
             m_zoom = 1.0f;
-        if (m_zoom > 65.0f)
-            m_zoom = 65.0f;
+        // if (m_zoom > 65.0f)
+        //     m_zoom = 65.0f;
     }
 };
 

@@ -1,4 +1,4 @@
-// std-lib
+﻿// std-lib
 #include <iostream>
 #include <cmath>
 // gl-lib
@@ -15,14 +15,15 @@
 #include "glshape.h"
 #include "glcamera.h"
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+int glfwgladInitialization(GLFWwindow **window, const char *title = "LearningOpenGL");
 void processInput(GLFWwindow *window);
-GLuint loadTexture(const char *file_path, GLuint internalFormat);
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-void mouse_callback(GLFWwindow *window, double xposIn, double yposIn);
+void framebufferSizeCallback(GLFWwindow *window, int width, int height);
+void mouseCallback(GLFWwindow *window, double xposIn, double yposIn);
+void mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 // settings
 const unsigned int SRC_WIDTH = 800;
 const unsigned int SRC_HEIGHT = 600;
+
 
 bool firstMouse = true;
 
@@ -37,34 +38,15 @@ GLBasicCamera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 int main()
 {
     // 初始化
-    glfwInit();
-    // 设置主版本号 3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    // 设置副版本号 3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // GLFW_OPENGL_CORE_PROFILE 对应核心模式
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow *window = glfwCreateWindow(SRC_WIDTH, SRC_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    // 设置当前上下文
-    glfwMakeContextCurrent(window);
+    GLFWwindow *window = nullptr;
+    if(glfwgladInitialization(&window)==-1) return -1;
     // 设置回调函数
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
+    glfwSetScrollCallback(window, mouseScrollCallback);
+    glfwSetMouseButtonCallback(window,nullptr);
 
-    // 初始化GLAD, GLAD回将所有设备的地址绑定到对应的指针上以供我们使用
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-    // cube1
+    // cube
     GLLighterCube cube = GLLighterCube();
     GLLighterCube lighter = GLLighterCube();
     cube.setUniform("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
@@ -108,32 +90,53 @@ int main()
     return 0;
 }
 
+// glfw: init
+// -------------------------------------------------------
+int glfwgladInitialization(GLFWwindow **window, const char *title)
+{
+    // 初始化
+    glfwInit();
+    // 设置主版本号 3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // 设置副版本号 3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // GLFW_OPENGL_CORE_PROFILE 对应核心模式
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    *window = glfwCreateWindow(SRC_WIDTH, SRC_HEIGHT, title, NULL, NULL);
+    if (*window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    // 设置当前上下文
+    glfwMakeContextCurrent(*window);
+    // 初始化GLAD, GLAD回将所有设备的地址绑定到对应的指针上以供我们使用
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+    return 0;
+}
+
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
 }
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
-void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
+void mouseCallback(GLFWwindow *window, double xposIn, double yposIn)
 {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL))
+    if ((glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL)) && glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
         if (firstMouse)
         {
@@ -143,13 +146,31 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
         }
         float xoffset = xpos - lastX;
         float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-        camera.processMouseMovement(xoffset, yoffset);
+        camera.processMouseMovement(xoffset / 10.0f, yoffset /10.0f);
+    }
+    else if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        if (firstMouse)
+        {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos;
+        camera.processDirection(CameraMovement::LEFT, xoffset * deltaTime * 10);
+        camera.processDirection(CameraMovement::DOWN, yoffset * deltaTime * 10);
+        lastX = xpos;
+        lastY = ypos;
+    }
+    else if(glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+    {
+        firstMouse = true;
     }
 }
-
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+void mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset)
 {
     camera.processMouseScroll(static_cast<float>(yoffset));
 }
