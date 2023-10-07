@@ -144,7 +144,7 @@ public:
 class GLLightingCube: public GLBasicShaderObject
 {
 private:
-    float m_vertices[216];
+    float m_vertices[288];
     GLuint m_VAO;
     GLuint m_VBO;
 

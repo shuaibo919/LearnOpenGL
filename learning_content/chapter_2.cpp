@@ -14,16 +14,13 @@
 // seld header
 #include "glshape.h"
 #include "glcamera.h"
+#include "glutils.h"
 
-int glfwgladInitialization(GLFWwindow **window, const char *title = "LearningOpenGL");
-void processInput(GLFWwindow *window);
-void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 void mouseCallback(GLFWwindow *window, double xposIn, double yposIn);
 void mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 // settings
 const unsigned int SRC_WIDTH = 800;
 const unsigned int SRC_HEIGHT = 600;
-
 
 bool firstMouse = true;
 
@@ -94,49 +91,6 @@ int main()
     return 0;
 }
 
-// glfw: init
-// -------------------------------------------------------
-int glfwgladInitialization(GLFWwindow **window, const char *title)
-{
-    // 初始化
-    glfwInit();
-    // 设置主版本号 3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    // 设置副版本号 3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // GLFW_OPENGL_CORE_PROFILE 对应核心模式
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    *window = glfwCreateWindow(SRC_WIDTH, SRC_HEIGHT, title, NULL, NULL);
-    if (*window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    // 设置当前上下文
-    glfwMakeContextCurrent(*window);
-    // 初始化GLAD, GLAD回将所有设备的地址绑定到对应的指针上以供我们使用
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-    // configure global opengl state
-    glEnable(GL_DEPTH_TEST);
-    // tell GLFW to capture our mouse
-    glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    return 0;
-}
-
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
-void framebufferSizeCallback(GLFWwindow *window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------
 void mouseCallback(GLFWwindow *window, double xposIn, double yposIn)
