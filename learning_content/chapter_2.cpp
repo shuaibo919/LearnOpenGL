@@ -47,14 +47,12 @@ int main()
     glfwSetMouseButtonCallback(window,nullptr);
 
     // cube
-    GLLighterCube cube = GLLighterCube();
-    GLLighterCube lighter = GLLighterCube();
-    cube.setUniform("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+    GLLightingCube cube = GLLightingCube("resource/shader/chapter_2/lighter_cube");
+    GLLighterCube lighter = GLLighterCube("resource/shader/chapter_2/lighter");
+    cube.setUniform("objectColor", glm::vec3(0.2f, 0.5f, 0.21f));
     cube.setUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
     // 光照位置
     glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-    lighter.setUniform("objectColor", glm::vec3(1.0f, 1.0f, 1.0f)); // 光照体颜色为白色
-    lighter.setUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));  // 偷懒复用fs
 
     // Render Loop
     while (!glfwWindowShouldClose(window))
@@ -63,24 +61,25 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         processInput(window);
-        glClearColor(0.1f, 0.f, 0.2f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // view
         glm::mat4 view = camera.viewMatrix();
         glm::mat4 projection = camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT);
-        // cube
-        cube.setUniform("projection", projection);
-        cube.setUniform("view", view);
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-        cube.setUniform("model", model);
-        cube.draw();
         // lighter
         lighter.setUniform("projection", projection);
         lighter.setUniform("view", view);
-        model = glm::translate(glm::mat4(1.0f), lightPos);
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), lightPos);
         model = glm::scale(model, glm::vec3(0.2f));
         lighter.setUniform("model", model);
         lighter.draw();
+        // cube
+        cube.setUniform("projection", projection);
+        cube.setUniform("view", view);
+        model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+        cube.setUniform("model", model);
+        cube.setUniform("lightPos", lightPos);
+        cube.draw();
         // swap cache
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -117,6 +116,10 @@ int glfwgladInitialization(GLFWwindow **window, const char *title)
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    // configure global opengl state
+    glEnable(GL_DEPTH_TEST);
+    // tell GLFW to capture our mouse
+    glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     return 0;
 }
 

@@ -52,7 +52,7 @@ private:
 
 public:
     GLBasicTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3,
-                    const GLBasicColor &fill_color, std::string glsl_file_path = "resource/shader/fillobj");
+                    const GLBasicColor &fill_color, std::string glsl_file_path = "resource/shader/chapter_1/fillobj");
     void draw();
     void deleteObject();
     ~GLBasicTriangle();
@@ -69,7 +69,7 @@ private:
 public:
     GLVertexTriangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3,
                      const GLBasicColor &color1, const GLBasicColor &color2, const GLBasicColor &color3,
-                     std::string glsl_file_path = "resource/shader/vertexobj");
+                     std::string glsl_file_path = "resource/shader/chapter_1/vertexobj");
     void draw();
     void deleteObject();
     ~GLVertexTriangle();
@@ -86,7 +86,7 @@ private:
 
 public:
     GLBasicRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4,
-                     const GLBasicColor &fill_color, std::string glsl_file_path = "resource/shader/fillobj");
+                     const GLBasicColor &fill_color, std::string glsl_file_path = "resource/shader/chapter_1/fillobj");
     void draw();
     void deleteObject();
     ~GLBasicRectangle();
@@ -104,7 +104,7 @@ private:
 public:
     GLTextureRectangle(const GLBsicPoint &point1, const GLBsicPoint &point2, const GLBsicPoint &point3, const GLBsicPoint &point4,
                        const GLBasicColor &color1, const GLBasicColor &color2, const GLBasicColor &color3, const GLBasicColor &color4,
-                       std::string glsl_file_path = "resource/shader/textureobj");
+                       std::string glsl_file_path = "resource/shader/chapter_1/textureobj");
     void draw();
     void draw(std::vector<GLuint> textureIds);
     void deleteObject();
@@ -120,7 +120,7 @@ private:
     GLuint m_VBO;
 
 public:
-    GLTextureCube(std::string glsl_file_path = "resource/shader/cube");
+    GLTextureCube(std::string glsl_file_path = "resource/shader/chapter_1/cube");
     void draw();
     void draw(std::vector<GLuint> textureIds);
     void deleteObject();
@@ -135,9 +135,25 @@ private:
     GLuint m_VBO;
 
 public:
-    GLLighterCube(std::string glsl_file_path = "resource/shader/lighter");
+    GLLighterCube(std::string glsl_file_path = "resource/shader/chapter_2/lighters");
     void draw();
     void deleteObject();
     ~GLLighterCube();
 };
+
+class GLLightingCube: public GLBasicShaderObject
+{
+private:
+    float m_vertices[216];
+    GLuint m_VAO;
+    GLuint m_VBO;
+
+public:
+    GLLightingCube(std::string glsl_file_path = "resource/shader/chapter_2/lighter_cube");
+    void draw();
+    void deleteObject();
+    ~GLLightingCube();
+};
+
+
 #endif
