@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.15)
 project(test)
 
 set(CMAKE_BUILD_TYPE "Debug")
-set(LEARNING_CHAPTER 2)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 
 # FOR IGNORE WARNING
 set(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"Libcmtd.lib")
+set(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"Libcmt.lib")
 
 # 3RDPARTY 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/include)
@@ -30,6 +30,11 @@ file(GLOB gl_shape_src ${CMAKE_CURRENT_SOURCE_DIR}/glshape/*.cpp)
 # target_link_libraries(glfw3)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
-# output exectuable
-file(GLOB src ${CMAKE_CURRENT_SOURCE_DIR}/learning_content/chapter_${LEARNING_CHAPTER}.cpp)
-add_executable(chapter${LEARNING_CHAPTER}  ${glad_src} ${gl_shape_src} ${src})
+# output exectuables
+
+file(GLOB app_src ${CMAKE_CURRENT_SOURCE_DIR}/learning_content/chapter_*.cpp)
+foreach(_var ${app_src})
+    get_filename_component(app_name ${_var} NAME_WE)
+    add_executable(${app_name}  ${glad_src} ${gl_shape_src} ${_var})
+	message("output exectuable:${app_name}")
+endforeach()
