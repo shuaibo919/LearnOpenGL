@@ -1,6 +1,5 @@
 ﻿#include "glutils.h"
 #include <iostream>
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 int glfwgladInitialization(GLFWwindow **window, int SRC_WIDTH, int SRC_HEIGHT, const char *title)
 {

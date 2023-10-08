@@ -1,4 +1,4 @@
-#ifndef HSB_GL_BASIC_MESH
+﻿#ifndef HSB_GL_BASIC_MESH
 #define HSB_GL_BASIC_MESH
 
 #include "glad/glad.h"
@@ -7,17 +7,27 @@
 #include <iostream>
 #include <vector>
 #include <glm.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+const int MAX_BONE_INFLUENCE = 4;
 
 struct GLBasicVertex
 {
     glm::vec3 Position;     // 顶点位置
     glm::vec3 Normal;       // 顶点法线
     glm::vec2 TexCoords;    // 纹理坐标
+    glm::vec3 Tangent;      // tangent
+    glm::vec3 Bitangent;    // bitangent
+	int m_BoneIDs[MAX_BONE_INFLUENCE]; //bone indexes which will influence this vertex
+	float m_Weights[MAX_BONE_INFLUENCE]; //weights from each bone
 };
 struct GLBasicTexture
 {
     GLuint id;              // 纹理id
     std::string type;       // 纹理类型
+    std::string path;       // 纹理路径
 };
 
 class GLSingleShader
@@ -47,7 +57,7 @@ class GLBasicMesh{
         /*  构造函数  */
         GLBasicMesh(std::vector<GLBasicVertex> vertices, std::vector<GLuint> indices, std::vector<GLBasicTexture> textures);
         /*  渲染  */
-        void draw(GLuint shaderProgram);
+        void draw(GLSingleShader &shader);
     private:
         /*  渲染数据  */
         unsigned int VAO, VBO, EBO;
@@ -56,6 +66,29 @@ class GLBasicMesh{
 };
 
 
-
+class GLBasicModel
+{
+    private:
+         /*  模型数据  */
+        std::vector<GLBasicTexture> textures_loaded;
+        std::vector<GLBasicMesh> meshes;
+        std::string directory;
+        /*  函数   */
+        void loadGLBasicModel(const std::string &path);
+        void processNode(aiNode *node, const aiScene *scene);
+        GLBasicMesh processMesh(aiMesh *mesh, const aiScene *scene);
+        std::vector<GLBasicTexture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName);
+    public:
+        /*  构造函数   */
+        GLBasicModel(const std::string &path)
+        {
+            loadGLBasicModel(path);
+        }
+        void draw(GLSingleShader &shader)
+        {
+            for(unsigned int i = 0; i < meshes.size(); i++)
+                meshes[i].draw(shader);
+        }
+};
 
 #endif
