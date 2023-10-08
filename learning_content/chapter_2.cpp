@@ -36,17 +36,17 @@ int main()
     GLLighterCube lighter = GLLighterCube("resource/shader/chapter_2/lighter");
 
     // 纹理
-    GLuint Texture = loadTexture("resource/img/advance_container.png", GL_RGB);
-    std::vector<GLuint> textures({Texture});
+    GLuint wood_texture = loadTexture("resource/img/advance_container.png", GL_RGBA);
+    GLuint steer_texture = loadTexture("resource/img/container_specular.png", GL_RGBA);
+    std::vector<GLuint> textures({wood_texture, steer_texture});
 
     // cube
     GLLightingCube cube = GLLightingCube("resource/shader/chapter_2/lighter_cube");
     cube.setUniform("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
     cube.setUniform("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f)); // 将光照调暗了一些以搭配场景
     cube.setUniform("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-    cube.setUniform("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
     cube.setUniform("material.diffuse", 0);
-    cube.setUniform("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    cube.setUniform("material.specular", 1);
     cube.setUniform("material.shininess", 32.0f);
 
     // Render Loop
