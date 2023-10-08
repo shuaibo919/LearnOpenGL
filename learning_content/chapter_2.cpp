@@ -73,6 +73,15 @@ int main()
     cube.setUniform("material.specular", 1);
     cube.setUniform("material.shininess", 32.0f);
 
+    cube.setUniform("spotLight.ambient", glm::vec3(0.0f, 0.0f, 0.0f));
+    cube.setUniform("spotLight.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+    cube.setUniform("spotLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    cube.setUniform("spotLight.constant", 1.0f);
+    cube.setUniform("spotLight.linear", 0.09f);
+    cube.setUniform("spotLight.quadratic", 0.032f);
+    cube.setUniform("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+    cube.setUniform("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));    
+
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -109,6 +118,8 @@ int main()
                 cube.setUniform("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i]);
             }
             cube.setUniform("viewPos", camera.positionVector());
+            cube.setUniform("spotLight.position",camera.positionVector());
+            cube.setUniform("spotLight.direction",camera.frontVector());
             cube.draw(textures);
         }
         // swap cache

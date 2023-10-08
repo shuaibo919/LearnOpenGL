@@ -66,6 +66,10 @@ public:
     {
         return m_position;
     }
+    glm::vec3 frontVector()
+    {
+        return m_front;
+    }
     glm::mat4 projectionMatrix(GLuint src_width, GLuint src_height)
     {
         return glm::perspective(glm::radians(m_zoom), (float)src_width / (float)src_height, 0.1f, 100.0f);
