@@ -35,11 +35,17 @@ file(GLOB gl_shape_src ${CMAKE_CURRENT_SOURCE_DIR}/glpractice/*.cpp)
 # target_link_libraries(glfw3)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
+# include imgui
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui/backends)
+file(GLOB imgui_src ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui/*.cpp)
+file(GLOB imgui_backend_src ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui/backends/*.cpp)
+
 # output exectuables
 
 file(GLOB app_src ${CMAKE_CURRENT_SOURCE_DIR}/learning_content/chapter_*.cpp)
 foreach(_var ${app_src})
     get_filename_component(app_name ${_var} NAME_WE)
-    add_executable(${app_name}  ${glad_src} ${gl_shape_src} ${_var})
+    add_executable(${app_name}  ${glad_src} ${gl_shape_src} ${_var} ${imgui_src} ${imgui_backend_src})
 	message("output exectuable:${app_name}")
 endforeach()
