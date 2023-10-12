@@ -12,7 +12,7 @@ mkdir bin
 cd build
 cmake ..
 ```
-然后:
+然后执行,自动构建每个章节对应的课后作业:
 ```bash
 YS@DESKTOP-5JP5NOA MINGW64 /f/hsbDocments/cpp_dev/LearningOpenGL/build (master)$ cmake --build .
 MSBuild version 17.6.3+07e294721 for .NET Framework
