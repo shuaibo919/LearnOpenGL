@@ -1,4 +1,4 @@
-// advance opengl
+﻿// advance opengl
 // self header
 #include "glshape.h"
 #include "glcamera.h"
@@ -7,6 +7,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "glvertices.hpp"
 #include <string>
 void mouseCallback(GLFWwindow *window, double xposIn, double yposIn);
 void mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
@@ -24,6 +25,69 @@ float lastY = (float)SRC_HEIGHT / 2.0;
 // camera
 GLBasicCamera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
+// vertices
+float cubeVertices[] = {
+    // positions          // texture Coords
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+    0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+    0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+    0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+
+    -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+    -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+    -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
+float planeVertices[] = {
+    // positions          // texture Coords
+    5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+    -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
+    -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+
+    5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+    -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+    5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
+float transparentVertices[] = {
+    // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+    0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
+    0.0f, -0.5f, 0.0f, 0.0f, 1.0f,
+    1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
+
+    0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
+    1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
+    1.0f, 0.5f, 0.0f, 1.0f, 0.0f};
+
 int main()
 {
     // 初始化
@@ -31,176 +95,115 @@ int main()
     if (glfwgladInitialization(&window, SRC_WIDTH, SRC_HEIGHT) == -1)
         return -1;
     glfwSwapInterval(1);
+
     // 设置回调函数
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetScrollCallback(window, mouseScrollCallback);
     glfwSetMouseButtonCallback(window, nullptr);
 
-    //imgui
+    // ImGUI Setup
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    ImGui::StyleColorsDark();                             // Setup Dear ImGui style
+    ImGui_ImplGlfw_InitForOpenGL(window, true);           // Setup Platform/Renderer backends
     ImGui_ImplOpenGL3_Init("#version 130");
-
-    bool show_another_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    // depth_test shader
-    GLSingleShader shader("resource/shader/chapter_4/depth_test");
-    float cubeVertices[] = {
-        // positions          // texture Coords
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-    float planeVertices[] = {
-        // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-        -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-
-         5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-         5.0f, -0.5f, -5.0f,  2.0f, 2.0f								
-    };
-    // cube VAO
-    unsigned int cubeVAO, cubeVBO;
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &cubeVBO);
-    glBindVertexArray(cubeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glBindVertexArray(0);
-    // plane VAO
-    unsigned int planeVAO, planeVBO;
-    glGenVertexArrays(1, &planeVAO);
-    glGenBuffers(1, &planeVBO);
-    glBindVertexArray(planeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), &planeVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glBindVertexArray(0);
-    // load textures
-    // -------------
-    unsigned int cubeTexture  = loadTexture("resource/img/marble.jpg",GL_RGB);
-    unsigned int floorTexture = loadTexture("resource/img/metal.png",GL_RGB);
+    // 创建基本顶点对象
+    GLBasicVerticesObj<GLBasicPTVertex> t_cube(fromCStylePTVertices(cubeVertices, 180));
+    GLBasicVerticesObj<GLBasicPTVertex> grass(fromCStylePTVertices(transparentVertices, 30));
+    GLBasicVerticesObj<GLBasicPTVertex> plane(fromCStylePTVertices(planeVertices, 30));
+    // 创建shader
+    GLSingleShader normal_shader("resource/shader/chapter_4/normal_texture");
+    normal_shader.setUniform("texture1", 0);
+    // 加载纹理
+    GLuint cubeTexture = autoLoadTexture("resource/img/marble.jpg");
+    GLuint grassTexture = autoLoadTexture("resource/img/grass.png", GL_CLAMP_TO_EDGE);
+    GLuint planeTexture = autoLoadTexture("resource/img/metal.png");
+    std::vector<glm::vec3> vegetations(
+        {glm::vec3(-1.5f, 0.0f, -0.48f),
+         glm::vec3(1.5f, 0.0f, 0.51f),
+         glm::vec3(0.0f, 0.0f, 0.7f),
+         glm::vec3(-0.3f, 0.0f, -2.3f),
+         glm::vec3(0.5f, 0.0f, -0.6f)});
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
 
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
-        io.WantCaptureMouse = false;
         glfwPollEvents();
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
         {
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
             static float f = 0.0f;
             static bool swith_mode = true;
 
-            ImGui::Begin("Parameter Configuration");                          // Create a window called "Hello, world!" and append into it.
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+            ImGui::Begin("Parameter Configuration");                 // Create a window called "Hello, world!" and append into it.
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);             // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float *)&clear_color); // Edit 3 floats representing a color
 
-            if (ImGui::Button("SWITCH DEPTH"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+            if (ImGui::Button("SWITCH DEPTH")) // Buttons return true when clicked (most widgets return true when edited/activated)
                 swith_mode = !swith_mode;
             ImGui::SameLine();
 
-            glDepthFunc(swith_mode?GL_LESS:GL_ALWAYS);
+            glDepthFunc(swith_mode ? GL_LESS : GL_ALWAYS);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
         }
-
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         processInput(window);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // 
-        glUseProgram(shader.getShaderProgram());
-        glm::mat4 model = glm::mat4(1.0f);
-        shader.setUniform("view", camera.viewMatrix());
-        shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH,SRC_HEIGHT));
-        // cubes
-        glBindVertexArray(cubeVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, cubeTexture); 	
-        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-        shader.setUniform("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-        shader.setUniform("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        // floor
-        glBindVertexArray(planeVAO);
-        glBindTexture(GL_TEXTURE_2D, floorTexture);
-        shader.setUniform("model", glm::mat4(1.0f));
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
-        
-        // Rendering
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        // swap cache
-        glfwSwapBuffers(window);
+
+        {
+            // shader config
+            glUseProgram(normal_shader.getShaderProgram());
+            normal_shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
+            normal_shader.setUniform("view", camera.viewMatrix());
+            normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f)));
+            glActiveTexture(GL_TEXTURE0);
+        }
+        {
+            // draw cube
+            glBindTexture(GL_TEXTURE_2D, cubeTexture);
+            t_cube.draw(normal_shader);
+            normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)));
+            t_cube.draw(normal_shader);
+        }
+
+        {
+            // draw grass
+            glBindTexture(GL_TEXTURE_2D, grassTexture);
+            for (unsigned int i = 0; i < vegetations.size(); i++)
+            {
+                normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), vegetations[i]));
+                grass.draw(normal_shader);
+            }
+        }
+
+        {
+            // draw plane
+            glBindTexture(GL_TEXTURE_2D, planeTexture);
+            normal_shader.setUniform("model", glm::mat4(1.0f));
+            plane.draw(normal_shader);
+        }
+
+        {
+            // swap cache
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            glfwSwapBuffers(window);
+        }
     }
 
     glfwTerminate();
@@ -236,8 +239,8 @@ void mouseCallback(GLFWwindow *window, double xposIn, double yposIn)
         }
         float xoffset = xpos - lastX;
         float yoffset = lastY - ypos;
-        camera.processDirection(CameraMovement::LEFT, xoffset * deltaTime );
-        camera.processDirection(CameraMovement::DOWN, yoffset * deltaTime );
+        camera.processDirection(CameraMovement::LEFT, xoffset * deltaTime);
+        camera.processDirection(CameraMovement::DOWN, yoffset * deltaTime);
         lastX = xpos;
         lastY = ypos;
     }
