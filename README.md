@@ -31,7 +31,7 @@ MSBuild version 17.6.3+07e294721 for .NET Framework
 ```
 最后:
 ```bash
-cp 3rdparty/3rdparty/assimp-vc143-mt.lib /bin/Debug/3rdparty/assimp-vc143-mt.lib
+cp 3rdparty/3rdparty/assimp/assimp-vc143-mt.dll /bin/Debug/3rdparty/assimp-vc143-mt.dll
 ```
 
 ## 启动程序
