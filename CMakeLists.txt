@@ -43,7 +43,7 @@ file(GLOB imgui_backend_src ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui/backends/
 
 # output exectuables
 
-file(GLOB app_src ${CMAKE_CURRENT_SOURCE_DIR}/learning_content/chapter_*.cpp)
+file(GLOB app_src ${CMAKE_CURRENT_SOURCE_DIR}/learning_content/*.cpp)
 foreach(_var ${app_src})
     get_filename_component(app_name ${_var} NAME_WE)
     add_executable(${app_name}  ${glad_src} ${gl_shape_src} ${_var} ${imgui_src} ${imgui_backend_src})
