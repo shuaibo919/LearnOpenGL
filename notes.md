@@ -152,3 +152,10 @@ LookAt矩阵： 一种特殊类型的观察矩阵，它创建了一个坐标系�
 > 4. 渲染（其它）物体，这次根据模板缓冲的内容丢弃特定的片段
 
 大部分情况下模板掩码(Stencil Mask)的值为0x00或者0xFF
+
+### 3.2 混合
+OpenGL中的混合由下式实现:
+$$\bar{C}_{result} = \bar{C}_{source}F_{source} + \bar{C}_{destination}F_{destination}$$
+其中$\bar{C}_{source}$和$\bar{C}_{destination}$自动指定,可调整的参数为$F_{source}$和$F_{destination}$。
+> 1. 目标颜色向量$\bar{C}_{destination}$：这是当前储存在颜色缓冲中的颜色向量
+> 2. 源颜色向量$\bar{C}_{source}$: 这是源自纹理的颜色向量

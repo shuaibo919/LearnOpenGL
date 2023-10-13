@@ -9,6 +9,7 @@
 #include "imgui_impl_opengl3.h"
 #include "glvertices.hpp"
 #include <string>
+#include <map>
 void mouseCallback(GLFWwindow *window, double xposIn, double yposIn);
 void mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 // settings
@@ -116,16 +117,16 @@ int main()
 
     // 创建基本顶点对象
     GLBasicVerticesObj<GLBasicPTVertex> t_cube(fromCStylePTVertices(cubeVertices, 180));
-    GLBasicVerticesObj<GLBasicPTVertex> grass(fromCStylePTVertices(transparentVertices, 30));
+    GLBasicVerticesObj<GLBasicPTVertex> t_window(fromCStylePTVertices(transparentVertices, 30));
     GLBasicVerticesObj<GLBasicPTVertex> plane(fromCStylePTVertices(planeVertices, 30));
     // 创建shader
     GLSingleShader normal_shader("resource/shader/chapter_4/normal_texture");
     normal_shader.setUniform("texture1", 0);
     // 加载纹理
     GLuint cubeTexture = autoLoadTexture("resource/img/marble.jpg");
-    GLuint grassTexture = autoLoadTexture("resource/img/grass.png", GL_CLAMP_TO_EDGE);
+    GLuint windowTexture = autoLoadTexture("resource/img/blending_transparent_window.png");
     GLuint planeTexture = autoLoadTexture("resource/img/metal.png");
-    std::vector<glm::vec3> vegetations(
+    std::vector<glm::vec3> windowPositions(
         {glm::vec3(-1.5f, 0.0f, -0.48f),
          glm::vec3(1.5f, 0.0f, 0.51f),
          glm::vec3(0.0f, 0.0f, 0.7f),
@@ -133,7 +134,8 @@ int main()
          glm::vec3(0.5f, 0.0f, -0.6f)});
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -182,13 +184,20 @@ int main()
         }
 
         {
-            // draw grass
-            glBindTexture(GL_TEXTURE_2D, grassTexture);
-            for (unsigned int i = 0; i < vegetations.size(); i++)
+            // draw window
+            std::map<float, glm::vec3> sorted;
+            for (unsigned int i = 0; i < windowPositions.size(); i++)
             {
-                normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), vegetations[i]));
-                grass.draw(normal_shader);
+                float distance = glm::length(camera.positionVector() - windowPositions[i]);
+                sorted[distance] = windowPositions[i];
             }
+            glBindTexture(GL_TEXTURE_2D, windowTexture);
+            for(std::map<float,glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+            {
+                normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), it->second));
+                t_window.draw(normal_shader);
+            }
+
         }
 
         {
