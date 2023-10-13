@@ -39,10 +39,6 @@ struct GLBasicPTVertex
 template<typename T>
 class GLBasicVerticesObj{
     public:
-        /*  网格数据  */
-        std::vector<T> m_vertices;
-        std::vector<GLuint> m_indices;
-        std::vector<GLBasicTexture> m_textures;
         /*  构造函数  */
         GLBasicVerticesObj(std::vector<T> vertices, std::vector<GLuint> indices, std::vector<GLBasicTexture> textures)
             :m_vertices(vertices),m_indices(indices),m_textures(textures)
@@ -62,38 +58,44 @@ class GLBasicVerticesObj{
         /*  渲染  */
         void draw(GLSingleShader &shader)
         {
-            unsigned int diffuseNr = 1;
-            unsigned int specularNr = 1;
-            unsigned int normalNr = 1;
-            unsigned int heightNr = 1;
-            for (int i = 0; i < m_textures.size(); i++)
+            if(!m_textures.empty())
             {
-                glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
-                // 获取纹理序号（diffuse_textureN 中的 N）
-                std::string number;
-                std::string name = m_textures[i].type;
-                if (name == "texture_diffuse")
-                    number = std::to_string(diffuseNr++);
-                else if (name == "texture_specular")
-                    number = std::to_string(specularNr++);
-                else if (name == "texture_normal")
-                    number = std::to_string(normalNr++);
-                else if (name == "texture_height")
-                    number = std::to_string(heightNr++);
+                unsigned int diffuseNr = 1;
+                unsigned int specularNr = 1;
+                unsigned int normalNr = 1;
+                unsigned int heightNr = 1;
+                for (int i = 0; i < m_textures.size(); i++)
+                {
+                    glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
+                    // 获取纹理序号（diffuse_textureN 中的 N）
+                    std::string number;
+                    std::string name = m_textures[i].type;
+                    if (name == "texture_diffuse")
+                        number = std::to_string(diffuseNr++);
+                    else if (name == "texture_specular")
+                        number = std::to_string(specularNr++);
+                    else if (name == "texture_normal")
+                        number = std::to_string(normalNr++);
+                    else if (name == "texture_height")
+                        number = std::to_string(heightNr++);
 
-                shader.setUniform("material." + name + number, i);
-                glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
+                    shader.setUniform("material." + name + number, i);
+                    glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
+                }
+                glActiveTexture(GL_TEXTURE0);
             }
-            glActiveTexture(GL_TEXTURE0);
-
             // 绘制网格
             glBindVertexArray(VAO);
             if(!m_indices.empty()) glDrawElements(GL_TRIANGLES, static_cast<GLuint>(m_indices.size()), GL_UNSIGNED_INT, 0);
             // todo:
-            else glDrawArrays(GL_TRIANGLES, 0, );
+            else glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
             glBindVertexArray(0);
         }
     private:
+        /*  网格数据  */
+        std::vector<T> m_vertices;
+        std::vector<GLuint> m_indices;
+        std::vector<GLBasicTexture> m_textures;
         /*  渲染数据  */
         unsigned int VAO, VBO, EBO;
         /*  初始化设置  */
