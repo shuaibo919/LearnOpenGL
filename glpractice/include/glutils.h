@@ -16,5 +16,6 @@ int glfwgladInitialization(GLFWwindow **window, int SRC_WIDTH, int SRC_HEIGHT, c
 void processInput(GLFWwindow *window);
 void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 GLuint loadTexture(const char *file_path, GLuint internalFormat);
+GLuint autoLoadTexture(const char *file_path, GLint mode = GL_REPEAT, bool gamma = false);
 
 #endif

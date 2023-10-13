@@ -3,7 +3,7 @@ project(test)
 
 set(CMAKE_BUILD_TYPE "Debug")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
-
+set(CXX_STANDARD 17)
 # FOR IGNORE WARNING
 set(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"Libcmtd.lib")
 set(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:"Libcmt.lib")
