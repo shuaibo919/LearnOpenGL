@@ -87,6 +87,12 @@ std::vector<GLBasicPTVertex> fromCStylePTVertices(float *arrays, int length)
     return tmps;
 }
 
+// 帧缓冲对象
+struct FrameCacheObject{
+    GLuint id;
+    bool use;
+};
+
 template <typename T>
 class GLBasicVerticesObj
 {
@@ -109,6 +115,7 @@ public:
     void draw(GLSingleShader &shader, GLenum mode = GL_TRIANGLES)
     {
         // 绘制网格
+        glUseProgram(shader.getShaderProgram());
         glBindVertexArray(VAO);
         if (!m_indices.empty())
             glDrawElements(mode, static_cast<GLuint>(m_indices.size()), GL_UNSIGNED_INT, 0);
@@ -121,6 +128,8 @@ public:
 private:
     /*  渲染数据  */
     unsigned int VAO, VBO, EBO;
+
+
     /*  初始化设置  */
     void setupVerticesObj()
     {
@@ -191,4 +200,87 @@ private:
         glBindVertexArray(0);
     }
 };
+
+
+class GLBasicFrameBufferObj{
+    public:
+        GLBasicFrameBufferObj(int screen_width, int screen_height)
+        {
+            // bind screen vertices buffer
+            glGenVertexArrays(1, &quadVAO);
+            glGenBuffers(1, &quadVBO);
+            glBindVertexArray(quadVAO);
+            glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+            // 坐标
+            static float quadVertices[] = { 
+                // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+                // positions   // texCoords
+                -1.0f,  1.0f,  0.0f, 1.0f,
+                -1.0f, -1.0f,  0.0f, 0.0f,
+                1.0f, -1.0f,  1.0f, 0.0f,
+
+                -1.0f,  1.0f,  0.0f, 1.0f,
+                1.0f, -1.0f,  1.0f, 0.0f,
+                1.0f,  1.0f,  1.0f, 1.0f
+            };
+            glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), &quadVertices[0], GL_STATIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float), (void *)0);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float), (void *)(sizeof(float) * 3));
+            setFrameBuffer(screen_width,screen_height);
+        }
+        /* 渲染缓冲 */
+        void draw(GLSingleShader &screen_shader, GLenum mode = GL_TRIANGLES)
+        {
+            // now bind back to default framebuffer and draw a quad plane with the attached framebuffer color texture
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glDisable(GL_DEPTH_TEST); // disable depth test so screen-space quad isn't discarded due to depth test.
+            glDisable(GL_STENCIL_TEST);
+            glDisable(GL_BLEND);
+            glDisable(GL_CULL_FACE);
+            // clear all relevant buffers
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            glUseProgram(screen_shader.getShaderProgram());
+            glBindVertexArray(quadVAO);
+            glBindTexture(GL_TEXTURE_2D, TBO);	// use the color attachment texture as the texture of the quad plane
+            glDrawArrays(mode, 0, 6);
+            // glEnable(GL_DEPTH_TEST);
+        }
+        /* 绑定缓冲 */
+        void bindBuffer()
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+        }
+    private:
+        /*  帧缓冲 */
+        GLuint FBO,RBO,TBO;
+        GLuint quadVAO, quadVBO;
+        /* 设置帧缓冲 */
+        void setFrameBuffer(const int width, const int height)
+        {
+            // bind frame buffer
+            glGenFramebuffers(1, &FBO);
+            glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+            // create a color attachment texture
+            glGenTextures(1, &TBO);
+            glBindTexture(GL_TEXTURE_2D,  TBO);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, TBO, 0);
+            // create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+            glGenRenderbuffers(1, &RBO);
+            glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO); // now actually attach it
+            // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete! \n" ;
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        } 
+};
+
 #endif

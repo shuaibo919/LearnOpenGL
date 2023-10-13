@@ -159,3 +159,11 @@ $$\bar{C}_{result} = \bar{C}_{source}F_{source} + \bar{C}_{destination}F_{destin
 其中$\bar{C}_{source}$和$\bar{C}_{destination}$自动指定,可调整的参数为$F_{source}$和$F_{destination}$。
 > 1. 目标颜色向量$\bar{C}_{destination}$：这是当前储存在颜色缓冲中的颜色向量
 > 2. 源颜色向量$\bar{C}_{source}$: 这是源自纹理的颜色向量
+
+### 3.3 面剔除(Face Culling)
+面剔除技术中重要是顶点环绕顺序，用于确定哪一面朝向摄像机
+>默认设置下逆时针顶点所定义的三角形将会被处理为正向三角形
+
+
+### 3.4 帧缓冲
+

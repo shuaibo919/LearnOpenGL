@@ -10,6 +10,7 @@
 #include "glvertices.hpp"
 #include <string>
 #include <map>
+#include <ext/matrix_relational.hpp>
 void mouseCallback(GLFWwindow *window, double xposIn, double yposIn);
 void mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 // settings
@@ -29,47 +30,49 @@ GLBasicCamera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 // vertices
 float cubeVertices[] = {
     // positions          // texture Coords
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-    0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-    0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-    0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-
-    -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-    -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-    -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-    0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-    0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-    -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
+    // Back face
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right         
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+    // Front face
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+    // Left face
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
+    // Right face
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right         
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left     
+    // Bottom face
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+    // Top face
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right     
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f  // bottom-left 
+    };
 float planeVertices[] = {
     // positions          // texture Coords
     5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
@@ -122,6 +125,8 @@ int main()
     // 创建shader
     GLSingleShader normal_shader("resource/shader/chapter_4/normal_texture");
     normal_shader.setUniform("texture1", 0);
+    GLSingleShader screen_shader("resource/shader/chapter_4/screen_shader");
+    screen_shader.setUniform("screenTexture", 0);
     // 加载纹理
     GLuint cubeTexture = autoLoadTexture("resource/img/marble.jpg");
     GLuint windowTexture = autoLoadTexture("resource/img/blending_transparent_window.png");
@@ -132,10 +137,14 @@ int main()
          glm::vec3(0.0f, 0.0f, 0.7f),
          glm::vec3(-0.3f, 0.0f, -2.3f),
          glm::vec3(0.5f, 0.0f, -0.6f)});
+    // 创建缓冲对象
+    GLBasicFrameBufferObj bufferRendering(SRC_WIDTH,SRC_HEIGHT);
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_CULL_FACE);
+    
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
@@ -164,26 +173,24 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         processInput(window);
+        bufferRendering.bindBuffer();
+        glEnable(GL_DEPTH_TEST);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
+            static glm::mat4 lastView = glm::mat4(10.0f);
+            lastView = camera.viewMatrix();
             // shader config
-            glUseProgram(normal_shader.getShaderProgram());
             normal_shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
             normal_shader.setUniform("view", camera.viewMatrix());
             normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f)));
             glActiveTexture(GL_TEXTURE0);
-        }
-        {
             // draw cube
             glBindTexture(GL_TEXTURE_2D, cubeTexture);
             t_cube.draw(normal_shader);
             normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)));
             t_cube.draw(normal_shader);
-        }
-
-        {
             // draw window
             std::map<float, glm::vec3> sorted;
             for (unsigned int i = 0; i < windowPositions.size(); i++)
@@ -197,14 +204,13 @@ int main()
                 normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), it->second));
                 t_window.draw(normal_shader);
             }
-
-        }
-
-        {
             // draw plane
             glBindTexture(GL_TEXTURE_2D, planeTexture);
             normal_shader.setUniform("model", glm::mat4(1.0f));
             plane.draw(normal_shader);
+            // rendering buffer
+            bufferRendering.draw(screen_shader);
+            
         }
 
         {
