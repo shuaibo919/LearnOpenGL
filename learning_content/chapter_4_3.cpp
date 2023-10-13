@@ -31,48 +31,48 @@ GLBasicCamera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float cubeVertices[] = {
     // positions          // texture Coords
     // Back face
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // Bottom-left
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, // bottom-right         
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, // bottom-left
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // Bottom-left
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+    0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  // bottom-right
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
+    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,  // top-left
     // Front face
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, // top-right
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, // top-left
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,  // bottom-right
+    0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // top-right
+    0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // top-right
+    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,  // top-left
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
     // Left face
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-left
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-left
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-right
-    // Right face
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right         
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // bottom-right
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // top-left
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-left     
+    -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // top-right
+    -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // top-left
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // bottom-right
+    -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // top-right
+                                     // Right face
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,    // top-left
+    0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  // bottom-right
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+    0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  // bottom-right
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,    // top-left
+    0.5f, -0.5f, 0.5f, 0.0f, 0.0f,   // bottom-left
     // Bottom face
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, // top-left
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, // bottom-left
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, // bottom-right
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, // top-right
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
+    0.5f, -0.5f, -0.5f, 1.0f, 1.0f,  // top-left
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // bottom-left
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // bottom-left
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // bottom-right
+    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
     // Top face
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, // top-right     
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, // bottom-right
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, // top-left
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f  // bottom-left 
-    };
+    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // bottom-right
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // top-right
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // bottom-right
+    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
+    -0.5f, 0.5f, 0.5f, 0.0f, 0.0f   // bottom-left
+};
 float planeVertices[] = {
     // positions          // texture Coords
     5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
@@ -138,17 +138,15 @@ int main()
          glm::vec3(-0.3f, 0.0f, -2.3f),
          glm::vec3(0.5f, 0.0f, -0.6f)});
     // 创建缓冲对象
-    GLBasicFrameBufferObj bufferRendering(SRC_WIDTH,SRC_HEIGHT);
+    GLBasicFrameBufferObj bufferRendering(SRC_WIDTH, SRC_HEIGHT);
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glEnable(GL_CULL_FACE);
-    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Render Loop
     while (!glfwWindowShouldClose(window))
     {
-        glfwPollEvents();
         {
             // Start the Dear ImGui frame
             ImGui_ImplOpenGL3_NewFrame();
@@ -174,7 +172,6 @@ int main()
         lastFrame = currentFrame;
         processInput(window);
         bufferRendering.bindBuffer();
-        glEnable(GL_DEPTH_TEST);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -199,7 +196,7 @@ int main()
                 sorted[distance] = windowPositions[i];
             }
             glBindTexture(GL_TEXTURE_2D, windowTexture);
-            for(std::map<float,glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+            for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
             {
                 normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), it->second));
                 t_window.draw(normal_shader);
@@ -210,7 +207,6 @@ int main()
             plane.draw(normal_shader);
             // rendering buffer
             bufferRendering.draw(screen_shader);
-            
         }
 
         {
@@ -218,6 +214,7 @@ int main()
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             glfwSwapBuffers(window);
+            glfwPollEvents();
         }
     }
 
