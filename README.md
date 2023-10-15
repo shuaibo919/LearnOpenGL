@@ -44,3 +44,5 @@ bin/Debug(Release)/chapter_1.exe
 [LearningOpenGL](https://learnopengl-cn.github.io/)
 
 [author：Joey de Vries](http://joeydevries.com/)
+
+![img](img/chpater_4_skyBox.png)
