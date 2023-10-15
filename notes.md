@@ -135,12 +135,12 @@ LookAt矩阵： 一种特殊类型的观察矩阵，它创建了一个坐标系�
 ## 2.Light
 
 ### 2.1 Phong Lighting Model 冯氏光照模型
-|||
-|---|:---:|
-|Ambient Lighting|环境光线|
-|Diffuse Lighting|漫反射光照|
-|Specular Lighting|镜面光照|
-|Combined|![](https://learnopengl-cn.github.io/img/02/02/basic_lighting_phong.png)|
+|                   |                                                                          |
+| ----------------- | :----------------------------------------------------------------------: |
+| Ambient Lighting  |                                 环境光线                                 |
+| Diffuse Lighting  |                                漫反射光照                                |
+| Specular Lighting |                                 镜面光照                                 |
+| Combined          | ![](https://learnopengl-cn.github.io/img/02/02/basic_lighting_phong.png) |
 
 
 ## 3. 高级OPENGL
@@ -166,4 +166,8 @@ $$\bar{C}_{result} = \bar{C}_{source}F_{source} + \bar{C}_{destination}F_{destin
 
 
 ### 3.4 帧缓冲
+
+### 3.5 天空盒
+
+![img](img/chpater_4_skyBox.png)
 

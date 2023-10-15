@@ -11,19 +11,19 @@
 #include <type_traits>
 
 // (PTN) Postion Normal Texcoords
-struct GLBasicPTNVertex
+struct GLBasicPNTVertex
 {
     glm::vec3 Position;  // 顶点位置
     glm::vec3 Normal;    // 顶点法线
     glm::vec2 TexCoords; // 纹理坐标
-    GLBasicPTNVertex(glm::vec3 a, glm::vec3 b, glm::vec2 c) : Position(a), Normal(b), TexCoords(c) {}
+    GLBasicPNTVertex(glm::vec3 a, glm::vec3 b, glm::vec2 c) : Position(a), Normal(b), TexCoords(c) {}
 };
-std::vector<GLBasicPTNVertex> fromCStylePTNVertices(float *arrays, int length)
+std::vector<GLBasicPNTVertex> fromCStylePTNVertices(float *arrays, int length)
 {
-    std::vector<GLBasicPTNVertex> tmps;
+    std::vector<GLBasicPNTVertex> tmps;
     for (int i = 0; i < length; i += 8)
     {
-        tmps.push_back(GLBasicPTNVertex(
+        tmps.push_back(GLBasicPNTVertex(
             glm::vec3(arrays[i], arrays[i + 1], arrays[i + 2]),
             glm::vec3(arrays[i + 3], arrays[i + 4], arrays[i + 5]),
             glm::vec2(arrays[i + 6], arrays[i + 7])));
@@ -68,6 +68,7 @@ std::vector<GLBasicPCTVertex> fromCStylePCTVertices(float *arrays, int length)
     }
     return tmps;
 }
+
 // (PT) Postion Texcoords
 struct GLBasicPTVertex
 {
@@ -86,7 +87,22 @@ std::vector<GLBasicPTVertex> fromCStylePTVertices(float *arrays, int length)
     }
     return tmps;
 }
-
+// (P) Postion
+struct GLBasicPVertex
+{
+    glm::vec3 Position; // 顶点位置
+    GLBasicPVertex(glm::vec3 a) : Position(a) {}
+};
+std::vector<GLBasicPVertex> fromCStylePVertices(float *arrays, int length)
+{
+    std::vector<GLBasicPVertex> tmps;
+    for (int i = 0; i < length; i += 3)
+    {
+        tmps.push_back(GLBasicPVertex(
+            glm::vec3(arrays[i], arrays[i + 1], arrays[i + 2])));
+    }
+    return tmps;
+}
 // 帧缓冲对象
 struct FrameCacheObject
 {
@@ -149,16 +165,16 @@ private:
         glEnableVertexAttribArray(0);
 
         // (PTN) Postion Normal Texcoords
-        if (std::is_same<T, GLBasicPTNVertex>::value)
+        if (std::is_same<T, GLBasicPNTVertex>::value)
         {
-            glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(GLBasicPTNVertex), &m_vertices[0], GL_STATIC_DRAW);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLBasicPTNVertex), (void *)0);
+            glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(GLBasicPNTVertex), &m_vertices[0], GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLBasicPNTVertex), (void *)0);
             // 顶点法线
             glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLBasicPTNVertex), (void *)offsetof(GLBasicPTNVertex, Normal));
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLBasicPNTVertex), (void *)offsetof(GLBasicPNTVertex, Normal));
             // 顶点纹理坐标
             glEnableVertexAttribArray(2);
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLBasicPTNVertex), (void *)offsetof(GLBasicPTNVertex, TexCoords));
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLBasicPNTVertex), (void *)offsetof(GLBasicPNTVertex, TexCoords));
         }
         // (PC) Postion Color
         else if (std::is_same<T, GLBasicPCVertex>::value)
@@ -192,6 +208,13 @@ private:
             // 顶点纹理坐标
             glEnableVertexAttribArray(1);
             glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLBasicPTVertex), (void *)offsetof(GLBasicPTVertex, TexCoords));
+        }
+        // (P) Postion
+        else if (std::is_same<T, GLBasicPVertex>::value)
+        {
+            // 坐标
+            glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(GLBasicPVertex), &m_vertices[0], GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLBasicPVertex), (void *)0);
         }
         else
         {
