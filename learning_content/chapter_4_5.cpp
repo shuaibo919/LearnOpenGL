@@ -167,7 +167,7 @@ int main()
     GLuint cubeTexture = autoLoadTexture("resource/img/marble.jpg");
     GLuint windowTexture = autoLoadTexture("resource/img/blending_transparent_window.png");
     GLuint planeTexture = autoLoadTexture("resource/img/metal.png");
-    GLuint skyTexure = loadCubemap("resource/img/skybox");
+    GLuint skyTexure = loadCubemap("resource/spacebox", ".png");
     std::vector<glm::vec3> windowPositions(
         {glm::vec3(0.0f, 0.0f, 0.7f),
          glm::vec3(-0.3f, 0.0f, -2.3f),
