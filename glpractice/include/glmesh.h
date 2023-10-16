@@ -33,12 +33,12 @@ struct GLBasicTexture
 class GLSingleShader
 {
 private:
-    const char *GLSL;
+    std::string GLSL;
     GLuint m_shaderProgram;
     void attachGLSL(std::string glsl_file_path,GLenum type);
 
 public:
-    GLSingleShader(std::string glsl_file_path);
+    GLSingleShader::GLSingleShader(std::string glsl_file_path, bool load_geometry = false);
     GLuint getShaderProgram();
     void setUniform(const std::string &name, int value);
     void setUniform(const std::string &name, float value);
@@ -59,6 +59,9 @@ class GLBasicMesh{
         GLBasicMesh(std::vector<GLBasicVertex> vertices, std::vector<GLuint> indices, std::vector<GLBasicTexture> textures);
         /*  渲染  */
         void draw(GLSingleShader &shader);
+        void draw(GLSingleShader &shader, int amount);
+        /*  属性 */
+        unsigned int getVAO(){return VAO;};
     private:
         /*  渲染数据  */
         unsigned int VAO, VBO, EBO;
@@ -72,7 +75,6 @@ class GLBasicModel
     private:
          /*  模型数据  */
         std::vector<GLBasicTexture> textures_loaded;
-        std::vector<GLBasicMesh> meshes;
         std::string directory;
         /*  函数   */
         void loadGLBasicModel(const std::string &path);
@@ -81,6 +83,7 @@ class GLBasicModel
         std::vector<GLBasicTexture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName);
     public:
         /*  构造函数   */
+        std::vector<GLBasicMesh> meshes;
         GLBasicModel(const std::string &path)
         {
             loadGLBasicModel(path);
@@ -90,6 +93,12 @@ class GLBasicModel
             for(unsigned int i = 0; i < meshes.size(); i++)
                 meshes[i].draw(shader);
         }
+        void draw(GLSingleShader &shader, int amount)
+        {
+            for(unsigned int i = 0; i < meshes.size(); i++)
+                meshes[i].draw(shader,amount);
+        }
 };
+
 
 #endif

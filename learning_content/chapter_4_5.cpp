@@ -79,15 +79,6 @@ float planeVertices[] = {
     5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
     -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
     5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
-float transparentVertices[] = {
-    // positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-    0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
-    0.0f, -0.5f, 0.0f, 0.0f, 1.0f,
-    1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
-
-    0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
-    1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
-    1.0f, 0.5f, 0.0f, 1.0f, 0.0f};
 float skyVertices[] = {
     // positions
     -1.0f, 1.0f, -1.0f,
@@ -160,13 +151,12 @@ int main()
 
     // 创建基本顶点对象
     GLBasicVerticesObj<GLBasicPNTVertex> t_cube(fromCStylePTNVertices(cubeVertices, 288));
-    GLBasicVerticesObj<GLBasicPTVertex> t_window(fromCStylePTVertices(transparentVertices, 30));
     GLBasicVerticesObj<GLBasicPTVertex> plane(fromCStylePTVertices(planeVertices, 30));
     GLBasicVerticesObj<GLBasicPVertex> skyBox(fromCStylePVertices(skyVertices, 108));
     // 创建shader
-    GLSingleShader reflect_shader("resource/shader/chapter_4/reflect_cube");
-    reflect_shader.setUniform("texture1", 0);
-    reflect_shader.setUniform("skybox", 1);
+    GLSingleShader explode_shader("resource/shader/chapter_4/explode", true);
+    explode_shader.setUniform("texture1", 0);
+    explode_shader.setUniform("skybox", 1);
     GLSingleShader normal_shader("resource/shader/chapter_4/normal_texture");
     normal_shader.setUniform("texture1", 0);
     GLSingleShader screen_shader("resource/shader/chapter_4/screen_shader");
@@ -187,7 +177,6 @@ int main()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_PROGRAM_POINT_SIZE);
 
     // Render Loop
     while (!glfwWindowShouldClose(window))
@@ -203,7 +192,7 @@ int main()
             ImGui::Begin("Parameter Configuration");                 // Create a window called "Hello, world!" and append into it.
             ImGui::SliderFloat("float", &f, 0.0f, 1.0f);             // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::ColorEdit3("clear color", (float *)&clear_color); // Edit 3 floats representing a color
-            reflect_shader.setUniform("factor", f);
+            explode_shader.setUniform("factor", f);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
         }
@@ -218,10 +207,11 @@ int main()
             static glm::mat4 lastView = glm::mat4(10.0f);
             lastView = camera.viewMatrix();
             // shader config
-            reflect_shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
-            reflect_shader.setUniform("view", camera.viewMatrix());
-            reflect_shader.setUniform("cameraPos", camera.positionVector());
-            reflect_shader.setUniform("model", glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f)));
+            explode_shader.setUniform("time", currentFrame);
+            explode_shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
+            explode_shader.setUniform("view", camera.viewMatrix());
+            explode_shader.setUniform("cameraPos", camera.positionVector());
+            explode_shader.setUniform("model", glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, -1.0f)));
             glActiveTexture(GL_TEXTURE0);
             // draw skyBox
             glDepthFunc(GL_LEQUAL);
@@ -235,9 +225,9 @@ int main()
             glBindTexture(GL_TEXTURE_2D, cubeTexture);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_CUBE_MAP, skyTexure);
-            t_cube.draw(reflect_shader);
-            reflect_shader.setUniform("model", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)));
-            t_cube.draw(reflect_shader);
+            t_cube.draw(explode_shader);
+            explode_shader.setUniform("model", glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f)));
+            t_cube.draw(explode_shader);
             // draw plane
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, planeTexture);
@@ -245,19 +235,6 @@ int main()
             normal_shader.setUniform("view", camera.viewMatrix());
             normal_shader.setUniform("model", glm::mat4(1.0f));
             plane.draw(normal_shader);
-            // draw window
-            // std::map<float, glm::vec3> sorted;
-            // for (unsigned int i = 0; i < windowPositions.size(); i++)
-            // {
-            //     float distance = glm::length(camera.positionVector() - windowPositions[i]);
-            //     sorted[distance] = windowPositions[i];
-            // }
-            // glBindTexture(GL_TEXTURE_2D, windowTexture);
-            // for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
-            // {
-            //     normal_shader.setUniform("model", glm::translate(glm::mat4(1.0f), it->second));
-            //     t_window.draw(normal_shader);
-            // }
         }
 
         {
