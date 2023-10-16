@@ -8,13 +8,15 @@
 GLuint TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 
 // GLSingleShader OPENGL基本着色器对象
-GLSingleShader::GLSingleShader(std::string glsl_file_path)
+GLSingleShader::GLSingleShader(std::string glsl_file_path, bool load_geometry)
 {
     // 创建Shader程序
     m_shaderProgram = glCreateProgram();
     // 加载GLSL
-    attachGLSL(glsl_file_path + ".vs", GL_VERTEX_SHADER);
-    attachGLSL(glsl_file_path + ".fs", GL_FRAGMENT_SHADER);
+    GLSL = glsl_file_path;
+    attachGLSL(GLSL + ".vs", GL_VERTEX_SHADER);
+    attachGLSL(GLSL + ".fs", GL_FRAGMENT_SHADER);
+    if(load_geometry) attachGLSL(GLSL + ".gs", GL_GEOMETRY_SHADER);
     glUseProgram(m_shaderProgram);
 }
 void GLSingleShader::attachGLSL(std::string glsl_file_path, GLenum type)
@@ -166,6 +168,37 @@ void GLBasicMesh::draw(GLSingleShader &shader)
     // 绘制网格
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLuint>(m_indices.size()), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+void GLBasicMesh::draw(GLSingleShader &shader, int amount)
+{
+    unsigned int diffuseNr = 1;
+    unsigned int specularNr = 1;
+    unsigned int normalNr = 1;
+    unsigned int heightNr = 1;
+    for (int i = 0; i < m_textures.size(); i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // 在绑定之前激活相应的纹理单元
+        // 获取纹理序号（diffuse_textureN 中的 N）
+        std::string number;
+        std::string name = m_textures[i].type;
+        if (name == "texture_diffuse")
+            number = std::to_string(diffuseNr++);
+        else if (name == "texture_specular")
+            number = std::to_string(specularNr++);
+        else if (name == "texture_normal")
+            number = std::to_string(normalNr++);
+        else if (name == "texture_height")
+            number = std::to_string(heightNr++);
+
+        shader.setUniform("material." + name + number, i);
+        glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
+    }
+    glActiveTexture(GL_TEXTURE0);
+
+    // 绘制网格
+    glBindVertexArray(VAO);
+    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLuint>(m_indices.size()), GL_UNSIGNED_INT, 0, amount);
     glBindVertexArray(0);
 }
 
