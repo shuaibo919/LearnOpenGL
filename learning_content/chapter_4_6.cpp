@@ -99,11 +99,12 @@ int main()
     GLBasicModel planet("resource/planet/planet.obj");
     GLBasicModel rock("resource/rock/rock.obj");
     GLBasicVerticesObj<GLBasicPVertex> skyBox(fromCStylePVertices(skyVertices, 108));
-    GLSingleShader shader("resource/shader/chapter_4/instancing");
+    GLSingleShader shader("resource/shader/chapter_4/planet");
+    GLSingleShader rock_shader("resource/shader/chapter_4/instancing");
     GLSingleShader sky_shader("resource/shader/chapter_4/skybox");
     sky_shader.setUniform("skybox", 0);
     GLuint skyTexure = loadCubemap("resource/spacebox", ".png");
-    int amount = 20000;
+    int amount = 2000;
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
 
@@ -198,10 +199,12 @@ int main()
             shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
             shader.setUniform("view", camera.viewMatrix());
             shader.setUniform("model", model);
-            // planet.draw(shader);
+            planet.draw(shader);
 
             // 绘制小行星
-            rock.draw(shader, amount);
+            rock_shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
+            rock_shader.setUniform("view", camera.viewMatrix());
+            rock.draw(rock_shader, amount);
         }
         ImGui::Render(); // render imgui
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
