@@ -57,7 +57,7 @@ int main()
     GLBasicModel planet("resource/planet/planet.obj");
     GLBasicModel rock("resource/rock/rock.obj");
     GLSingleShader shader("resource/shader/chapter_4/instancing");
-    int amount = 20000;
+    int amount = 2000;
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
 
@@ -104,11 +104,11 @@ int main()
         glEnableVertexAttribArray(3); 
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
         glEnableVertexAttribArray(4); 
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(vec4Size));
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(sizeof(glm::vec4)));
         glEnableVertexAttribArray(5); 
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * sizeof(glm::vec4)));
         glEnableVertexAttribArray(6); 
-        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * sizeof(glm::vec4)));
 
         glVertexAttribDivisor(3, 1);
         glVertexAttribDivisor(4, 1);
