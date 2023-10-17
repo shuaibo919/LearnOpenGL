@@ -8,15 +8,15 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "glvertices.hpp"
-#include "glshadow.hpp"
+#include "glshadow.h"
 #include <string>
 #include <map>
 #include <ext/matrix_relational.hpp>
 void mouseCallback(GLFWwindow *window, double xposIn, double yposIn);
 void mouseScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 // settings
-const unsigned int SRC_WIDTH = 800;
-const unsigned int SRC_HEIGHT = 600;
+const unsigned int SRC_WIDTH = 400;
+const unsigned int SRC_HEIGHT = 300;
 
 bool firstMouse = true;
 
@@ -26,7 +26,7 @@ float lastFrame = 0.0f;
 float lastX = (float)SRC_WIDTH / 2.0;
 float lastY = (float)SRC_HEIGHT / 2.0;
 // camera
-GLBasicCamera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+GLBasicCamera camera(glm::vec3(0.0f, 0.0f, 4.5f));
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 // render func
 GLuint planeTexture;
