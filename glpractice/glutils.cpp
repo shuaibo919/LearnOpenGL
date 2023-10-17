@@ -33,6 +33,39 @@ int glfwgladInitialization(GLFWwindow **window, int SRC_WIDTH, int SRC_HEIGHT, c
     glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     return 0;
 }
+int glfwgladInitialization(GLFWwindow **window, int SRC_WIDTH, int SRC_HEIGHT, const char *title, int sampleN)
+{
+    // 初始化
+    glfwInit();
+    // 设置主版本号 3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // 设置副版本号 3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // 设置采样点个数
+    glfwWindowHint(GLFW_SAMPLES,sampleN);
+    // GLFW_OPENGL_CORE_PROFILE 对应核心模式
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    *window = glfwCreateWindow(SRC_WIDTH, SRC_HEIGHT, title, NULL, NULL);
+    if (*window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    // 设置当前上下文
+    glfwMakeContextCurrent(*window);
+    // 初始化GLAD, GLAD回将所有设备的地址绑定到对应的指针上以供我们使用
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+    // configure global opengl state
+    glEnable(GL_DEPTH_TEST);
+    // tell GLFW to capture our mouse
+    glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    return 0;
+}
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

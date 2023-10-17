@@ -159,7 +159,7 @@ int main()
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // 创建基本顶点对象
-    GLBasicVerticesObj<GLBasicPNTVertex> t_cube(fromCStylePTNVertices(cubeVertices, 288));
+    GLBasicVerticesObj<GLBasicPNTVertex> t_cube(fromCStylePNTVertices(cubeVertices, 288));
     GLBasicVerticesObj<GLBasicPTVertex> t_window(fromCStylePTVertices(transparentVertices, 30));
     GLBasicVerticesObj<GLBasicPTVertex> plane(fromCStylePTVertices(planeVertices, 30));
     GLBasicVerticesObj<GLBasicPVertex> skyBox(fromCStylePVertices(skyVertices, 108));

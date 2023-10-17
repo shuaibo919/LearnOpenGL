@@ -18,7 +18,7 @@ struct GLBasicPNTVertex
     glm::vec2 TexCoords; // 纹理坐标
     GLBasicPNTVertex(glm::vec3 a, glm::vec3 b, glm::vec2 c) : Position(a), Normal(b), TexCoords(c) {}
 };
-std::vector<GLBasicPNTVertex> fromCStylePTNVertices(float *arrays, int length)
+std::vector<GLBasicPNTVertex> fromCStylePNTVertices(float *arrays, int length)
 {
     std::vector<GLBasicPNTVertex> tmps;
     for (int i = 0; i < length; i += 8)
