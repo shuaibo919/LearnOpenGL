@@ -104,21 +104,22 @@ GLuint autoLoadTexture(const char *file_path, GLint mode, bool gamma)
 
     return textureID;
 }
-GLuint loadCubemap(const std::string file_path)
+GLuint loadCubemap(const std::string file_path, const std::string default_fix_string)
 {
     GLuint textureID;
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
     int width, height, nrChannels;
-    const std::vector<std::string> faces({"/right.jpg",
-                                          "/left.jpg",
-                                          "/top.jpg",
-                                          "/bottom.jpg",
-                                          "/front.jpg",
-                                          "/back.jpg"});
+    const std::vector<std::string> faces({"/right" + default_fix_string,
+                                          "/left" + default_fix_string,
+                                          "/top" + default_fix_string,
+                                          "/bottom" + default_fix_string,
+                                          "/front" + default_fix_string,
+                                          "/back" + default_fix_string});
     for (unsigned int i = 0; i < faces.size(); i++)
     {
+        // stbi_set_flip_vertically_on_load(false);
         unsigned char *data = stbi_load((file_path + faces[i]).c_str(), &width, &height, &nrChannels, 0);
         if (data)
         {

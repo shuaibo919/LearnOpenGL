@@ -154,7 +154,7 @@ int main()
     GLBasicVerticesObj<GLBasicPTVertex> plane(fromCStylePTVertices(planeVertices, 30));
     GLBasicVerticesObj<GLBasicPVertex> skyBox(fromCStylePVertices(skyVertices, 108));
     // 创建shader
-    GLSingleShader explode_shader("resource/shader/chapter_4/explode",true);
+    GLSingleShader explode_shader("resource/shader/chapter_4/explode", true);
     explode_shader.setUniform("texture1", 0);
     explode_shader.setUniform("skybox", 1);
     GLSingleShader normal_shader("resource/shader/chapter_4/normal_texture");
@@ -167,7 +167,7 @@ int main()
     GLuint cubeTexture = autoLoadTexture("resource/img/marble.jpg");
     GLuint windowTexture = autoLoadTexture("resource/img/blending_transparent_window.png");
     GLuint planeTexture = autoLoadTexture("resource/img/metal.png");
-    GLuint skyTexure = loadCubemap("resource/img/skybox");
+    GLuint skyTexure = loadCubemap("resource/spacebox", ".png");
     std::vector<glm::vec3> windowPositions(
         {glm::vec3(0.0f, 0.0f, 0.7f),
          glm::vec3(-0.3f, 0.0f, -2.3f),
@@ -207,7 +207,7 @@ int main()
             static glm::mat4 lastView = glm::mat4(10.0f);
             lastView = camera.viewMatrix();
             // shader config
-            explode_shader.setUniform("time",currentFrame);
+            explode_shader.setUniform("time", currentFrame);
             explode_shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
             explode_shader.setUniform("view", camera.viewMatrix());
             explode_shader.setUniform("cameraPos", camera.positionVector());

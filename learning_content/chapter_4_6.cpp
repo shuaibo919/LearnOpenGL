@@ -26,7 +26,49 @@ float lastX = (float)SRC_WIDTH / 2.0;
 float lastY = (float)SRC_HEIGHT / 2.0;
 // camera
 GLBasicCamera camera(glm::vec3(0.0f, 0.0f, 55.0f));
+float skyVertices[] = {
+    // positions
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
 
+    -1.0f, -1.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, -1.0f, 1.0f,
+
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+
+    -1.0f, -1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f,
+    -1.0f, -1.0f, 1.0f,
+
+    -1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f, 1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f};
 int main()
 {
     // 初始化
@@ -56,17 +98,21 @@ int main()
     // 创建模型
     GLBasicModel planet("resource/planet/planet.obj");
     GLBasicModel rock("resource/rock/rock.obj");
+    GLBasicVerticesObj<GLBasicPVertex> skyBox(fromCStylePVertices(skyVertices, 108));
     GLSingleShader shader("resource/shader/chapter_4/instancing");
-    int amount = 2000;
+    GLSingleShader sky_shader("resource/shader/chapter_4/skybox");
+    sky_shader.setUniform("skybox", 0);
+    GLuint skyTexure = loadCubemap("resource/spacebox", ".png");
+    int amount = 20000;
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
 
     glm::mat4 *modelMatrices;
     modelMatrices = new glm::mat4[amount];
-    srand(glfwGetTime()); // 初始化随机种子    
+    srand(glfwGetTime()); // 初始化随机种子
     float radius = 50.0;
     float offset = 2.5f;
-    for(unsigned int i = 0; i < amount; i++)
+    for (unsigned int i = 0; i < amount; i++)
     {
         // 1. 位移：分布在半径为 'radius' 的圆形上，偏移的范围是 [-offset, offset]
         float angle = (float)i / (float)amount * 360.0f;
@@ -88,27 +134,26 @@ int main()
 
         // 4. 添加到矩阵的数组中
         modelMatrices[i] = model;
-    }  
+    }
     // 顶点缓冲对象
     unsigned int buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
 
-    for(unsigned int i = 0; i < rock.meshes.size(); i++)
+    for (unsigned int i = 0; i < rock.meshes.size(); i++)
     {
         unsigned int VAO = rock.meshes[i].getVAO();
         glBindVertexArray(VAO);
         // 顶点属性
-        GLsizei vec4Size = sizeof(glm::vec4);
-        glEnableVertexAttribArray(3); 
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
-        glEnableVertexAttribArray(4); 
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(sizeof(glm::vec4)));
-        glEnableVertexAttribArray(5); 
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * sizeof(glm::vec4)));
-        glEnableVertexAttribArray(6); 
-        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * sizeof(glm::vec4)));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)0);
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(sizeof(glm::vec4)));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(2 * sizeof(glm::vec4)));
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void *)(3 * sizeof(glm::vec4)));
 
         glVertexAttribDivisor(3, 1);
         glVertexAttribDivisor(4, 1);
@@ -116,7 +161,7 @@ int main()
         glVertexAttribDivisor(6, 1);
 
         glBindVertexArray(0);
-    }  
+    }
 
     float angle = 0.0f;
     // Render Loop
@@ -126,10 +171,11 @@ int main()
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-            ImGui::Begin("Monitor");              
+            ImGui::Begin("Monitor");
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
-            if (angle >= 360.0f) angle = 0.0f;
+            if (angle >= 360.0f)
+                angle = 0.0f;
         }
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -139,21 +185,27 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         {
-           // 绘制行星
+            glDepthFunc(GL_LEQUAL);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, skyTexure);
+            sky_shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
+            sky_shader.setUniform("view", glm::mat4(glm::mat3(camera.viewMatrix())));
+            skyBox.draw(sky_shader);
+            glDepthFunc(GL_LESS);
+            // 绘制行星
             glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -3.0f, 0.0f));
             model = glm::rotate(model, glm::radians(angle += 0.075f), glm::vec3(0.0f, 1.0f, 0.0f));
             model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
-            shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH,SRC_HEIGHT));
+            shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
             shader.setUniform("view", camera.viewMatrix());
             shader.setUniform("model", model);
-            //planet.draw(shader);
+            // planet.draw(shader);
 
             // 绘制小行星
-            rock.draw(shader,amount);
+            rock.draw(shader, amount);
         }
-        ImGui::Render();                                        // render imgui
+        ImGui::Render(); // render imgui
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);                                // swap buffer
+        glfwSwapBuffers(window); // swap buffer
         glfwPollEvents();
     }
     glfwTerminate();
