@@ -135,7 +135,6 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetScrollCallback(window, mouseScrollCallback);
-    glfwSetMouseButtonCallback(window, nullptr);
 
     // ImGUI Setup
     IMGUI_CHECKVERSION();
