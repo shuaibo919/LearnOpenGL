@@ -1,6 +1,5 @@
 ﻿// advance opengl
 // self header
-#include "glshape.h"
 #include "glcamera.h"
 #include "glutils.h"
 #include "glmesh.h"

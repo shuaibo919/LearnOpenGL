@@ -38,7 +38,7 @@ private:
     void attachGLSL(std::string glsl_file_path,GLenum type);
 
 public:
-    GLSingleShader::GLSingleShader(std::string glsl_file_path, bool load_geometry = false);
+    GLSingleShader(std::string glsl_file_path, bool load_geometry = false);
     GLuint getShaderProgram();
     void setUniform(const std::string &name, int value);
     void setUniform(const std::string &name, float value);
