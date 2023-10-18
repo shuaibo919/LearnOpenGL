@@ -60,18 +60,21 @@ int main()
 
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     // 创建阴影对象
     const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-    auto lightShadow = GLBasicShadow<SHADOW_WIDTH, SHADOW_HEIGHT>();
+    auto lightShadow = GLCubeShadowMap<SHADOW_WIDTH, SHADOW_HEIGHT>();
     // 创建shader
-    GLSingleShader shader("resource/shader/chapter_5/shadow/shadow_mapping");
-    GLSingleShader simpleDepthShader("resource/shader/chapter_5/shadow/shadow_mapping_depth");
+    GLSingleShader shader("resource/shader/chapter_5/shadow/point_shadow_mapping");
+    GLSingleShader simpleDepthShader("resource/shader/chapter_5/shadow/point_shadow",true);
     shader.use();
     shader.setUniform("diffuseTexture", 0);
-    shader.setUniform("shadowMap", 1);
-    glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
+    shader.setUniform("depthMap", 1);
+    shader.setUniform("shadows", true);
     // 加载纹理
     woodTexture = autoLoadTexture("resource/img/wood.png");
+    // 光源位置
+    glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
     // Render Loop
     while (!glfwWindowShouldClose(window))
@@ -92,51 +95,30 @@ int main()
         // Check and call events
         glfwPollEvents();
 
-        float near_plane = 1.0f, far_plane = 7.5f;
-        glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-        glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-        glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-        // 光空间变换
-        float aspect = (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT;
+        // 渲染阴影贴图
+        lightPos.x = static_cast<float>(sin(glfwGetTime() * 0.5) * 3.0);
         float near = 1.0f;
         float far = 25.0f;
-        glm::mat4 shadowProjection = glm::perspective(glm::radians(90.f), aspect, 1.0f, 25.0f);
-        std::vector<glm::mat4> shadowTransforms;
-        shadowTransforms.push_back(shadowProjection * 
-                        glm::lookAt(lightPos, lightPos + glm::vec3(1.0,0.0,0.0), glm::vec3(0.0,-1.0,0.0)));
-        shadowTransforms.push_back(shadowProjection * 
-                        glm::lookAt(lightPos, lightPos + glm::vec3(-1.0,0.0,0.0), glm::vec3(0.0,-1.0,0.0)));
-        shadowTransforms.push_back(shadowProjection * 
-                        glm::lookAt(lightPos, lightPos + glm::vec3(0.0,1.0,0.0), glm::vec3(0.0,0.0,1.0)));
-        shadowTransforms.push_back(shadowProjection * 
-                        glm::lookAt(lightPos, lightPos + glm::vec3(0.0,-1.0,0.0), glm::vec3(0.0,0.0,-1.0)));
-        shadowTransforms.push_back(shadowProjection * 
-                        glm::lookAt(lightPos, lightPos + glm::vec3(0.0,0.0,1.0), glm::vec3(0.0,-1.0,0.0)));
-        shadowTransforms.push_back(shadowProjection * 
-                        glm::lookAt(lightPos, lightPos + glm::vec3(0.0,0.0,-1.0), glm::vec3(0.0,-1.0,0.0)));
-
-        // render scene from light's point of view
         simpleDepthShader.use();
-        simpleDepthShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-        lightShadow.caputureRenderingToTexture(simpleDepthShader, render_scene);
+        simpleDepthShader.setUniform("far_plane",far);
+        simpleDepthShader.setUniform("lightPos", lightPos);
+        lightShadow.setCubeShadowLightDir(simpleDepthShader,"shadowMatrices",lightPos, 90.0f, near, far);
+        lightShadow.caputureRenderingToTexture(simpleDepthShader,render_scene,SRC_WIDTH,SRC_HEIGHT);
 
-        // set light uniforms
+        // 设置场景着色器
+        shader.use();
         shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
         shader.setUniform("view", camera.viewMatrix());
         shader.setUniform("viewPos", camera.positionVector());
         shader.setUniform("lightPos", lightPos);
-        shader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-        // bind texture
+        shader.setUniform("far_plane", far);
+        // 渲染场景
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, lightShadow.getDepthMap());
+        glBindTexture(GL_TEXTURE_CUBE_MAP, lightShadow.getDepthMap());
         render_scene(shader);
-        /* render Depth map to quad for visual debugging */
-        // glUseProgram(debugDepthShader.getShaderProgram());
-        // debugDepthShader.setUniform("near_plane", near_plane);
-        // debugDepthShader.setUniform("far_plane", far_plane);
-        // shadow.draw();
+
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -198,38 +180,38 @@ void render_cube(GLSingleShader &shader)
     cube.draw(shader);
 }
 
-GLfloat planeVertices[] = {
-    // Positions          // Normals         // Texture Coords
-    25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
-    -25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,
-    -25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-
-    25.0f, -0.5f, 25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 0.0f,
-    25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 25.0f, 25.0f,
-    -25.0f, -0.5f, -25.0f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f};
-
-void render_plane(GLSingleShader &shader)
-{
-    static GLBasicVerticesObj<GLBasicPNTVertex> plane(fromCStylePNTVertices(planeVertices, 48));
-    plane.draw(shader);
-}
-
 void render_scene(GLSingleShader &shader)
 {
     // floor
-    glm::mat4 model = glm::mat4(1.0f);
+    // Room cube
+    glm::mat4 model(1.0f);
+    model = glm::scale(model, glm::vec3(10.0));
     shader.setUniform("model", model);
-    render_plane(shader);
+    glDisable(GL_CULL_FACE); // Note that we disable culling here since we render 'inside' the cube instead of the usual 'outside' which throws off the normal culling methods.
+    shader.setUniform("reverse_normals", 1);
+    render_cube(shader);
+    shader.setUniform("reverse_normals", 0);
+    glEnable(GL_CULL_FACE);
     // cubes
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 0.0));
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(4.0f, -3.5f, 0.0f));
     shader.setUniform("model", model);
     render_cube(shader);
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 1.0));
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 3.0f, 1.0));
+    model = glm::scale(model, glm::vec3(1.5));
     shader.setUniform("model", model);
     render_cube(shader);
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 2.0));
-    model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-    model = glm::scale(model, glm::vec3(0.5));
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(-3.0f, -1.0f, 0.0));
+    shader.setUniform("model", model);
+    render_cube(shader);
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 1.0f, 1.5));
+    shader.setUniform("model", model);
+    render_cube(shader);
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.5f, 2.0f, -3.0));
+    shader.setUniform("model", model);
+    render_cube(shader);
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(-3.0f, -1.0f, 0.0));
+    model = glm::rotate(model, 60.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+    model = glm::scale(model, glm::vec3(1.5));
     shader.setUniform("model", model);
     render_cube(shader);
 }

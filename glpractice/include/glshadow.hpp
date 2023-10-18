@@ -39,14 +39,14 @@ public:
         glReadBuffer(GL_NONE);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
-    void caputureRenderingToTexture(GLSingleShader &shader, std::function<void(GLSingleShader &shader)> render_func)
+    void caputureRenderingToTexture(GLSingleShader &shader, std::function<void(GLSingleShader &shader)> render_func, int width, int height)
     {
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
         render_func(shader);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, SRC_WIDTH, SRC_HEIGHT);
+        glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     GLuint getDepthMap()
@@ -60,49 +60,70 @@ public:
 };
 
 template <GLuint T_SHADOW_WIDTH = 1024, GLuint T_SHADOW_HEIGHT = 1024>
-class GLCubeShadowMap{
-    private:
-        GLuint depthCubeMap;
-        GLuint depthMapFBO;
-    public:
-        GLCubeShadowMap(){
-            glGenTextures(1,&depthCubeMap);
-            glBindTexture(GL_TEXTURE_CUBE_MAP,depthCubeMap);
-            for(int i = 0; i < 6; ++i)
-            {
-                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, T_SHADOW_WIDTH, T_SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-            }
-            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+class GLCubeShadowMap
+{
+private:
+    GLuint depthCubeMap;
+    GLuint depthMapFBO;
 
-            glGenFramebuffers(1,&depthMapFBO);
-            glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-            glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
-            glDrawBuffer(GL_NONE);
-            glReadBuffer(GL_NONE);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        }
-        void caputureRenderingToTexture(GLSingleShader &shader, std::function<void(GLSingleShader &shader)> render_func)
+public:
+    const GLuint SHADOW_WIDTH = T_SHADOW_WIDTH, SHADOW_HEIGHT = T_SHADOW_HEIGHT;
+    GLCubeShadowMap()
+    {
+        glGenTextures(1, &depthCubeMap);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+        for (int i = 0; i < 6; ++i)
         {
-            glViewport(0, 0, T_SHADOW_WIDTH, T_SHADOW_HEIGHT);
-            glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-            glClear(GL_DEPTH_BUFFER_BIT);
-            render_func(shader);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glViewport(0, 0, SRC_WIDTH, SRC_HEIGHT);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         }
-        GLuint getDepthMap()
-        {
-            return depthCubeMap;
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+        glGenFramebuffers(1, &depthMapFBO);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubeMap, 0);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            std::cout << "Framebuffer not complete!" << std::endl;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    void caputureRenderingToTexture(GLSingleShader &shader, std::function<void(GLSingleShader &shader)> render_func, int width, int height)
+    {
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        render_func(shader);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, width, height);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+    void setCubeShadowLightDir(GLSingleShader &shader, std::string uniform_name, glm::vec3 lightPos, float radians, float near, float far)
+    {
+        float aspect = (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT;
+        glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), aspect, near, far);
+        std::vector<glm::mat4> transforms;
+        transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+        transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+        transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+        transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+        transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+        transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+        for(int i = 0;i < 6; ++i){
+            shader.setUniform(uniform_name + "[" + std::to_string(i) + "]", transforms[i]);
         }
-        GLuint getDepthMapFBO()
-        {
-            return depthMapFBO;
-        }
+    }
+    GLuint getDepthMap()
+    {
+        return depthCubeMap;
+    }
+    GLuint getDepthMapFBO()
+    {
+        return depthMapFBO;
+    }
 };
 
 #endif

@@ -97,7 +97,7 @@ int main()
         // render scene from light's point of view
         simpleDepthShader.use();
         simpleDepthShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
-        lightShadow.caputureRenderingToTexture(simpleDepthShader, render_scene);
+        lightShadow.caputureRenderingToTexture(simpleDepthShader, render_scene, SRC_WIDTH, SRC_HEIGHT);
 
         // set light uniforms
         shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
