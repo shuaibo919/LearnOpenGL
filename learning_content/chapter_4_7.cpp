@@ -1,4 +1,4 @@
-// advance opengl
+﻿// advance opengl
 // self header
 #include "glshape.h"
 #include "glcamera.h"
