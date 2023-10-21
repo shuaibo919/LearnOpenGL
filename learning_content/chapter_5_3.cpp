@@ -90,6 +90,9 @@ int main()
         // Check and call events
         glfwPollEvents();
 
+        lightPos.x = sin(glfwGetTime()) * 3.0f;
+        lightPos.z = cos(glfwGetTime()) * 2.0f;
+        lightPos.y = 5.0 + cos(glfwGetTime()) * 1.0f;
         float near_plane = 1.0f, far_plane = 7.5f;
         glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
         glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -100,6 +103,7 @@ int main()
         lightShadow.caputureRenderingToTexture(simpleDepthShader, render_scene);
 
         // set light uniforms
+        shader.setUniform("shadows", true);
         shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
         shader.setUniform("view", camera.viewMatrix());
         shader.setUniform("viewPos", camera.positionVector());
