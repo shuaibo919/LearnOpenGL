@@ -47,7 +47,7 @@ void main()
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
 
     result += CalcPointLight(pointLight, norm, FragPos, viewDir);    
-    // // 第三阶段：聚光
+    // // // 第三阶段：聚光
     // result += CalcFlashLight(spotLight, norm, FragPos, viewDir);    
 
     FragColor = vec4(result, 1.0);

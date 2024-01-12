@@ -112,7 +112,8 @@ public:
         transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
         transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
         transforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
-        for(int i = 0;i < 6; ++i){
+        for (int i = 0; i < 6; ++i)
+        {
             shader.setUniform(uniform_name + "[" + std::to_string(i) + "]", transforms[i]);
         }
     }

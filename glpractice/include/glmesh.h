@@ -44,6 +44,7 @@ public:
     void setUniform(const std::string &name, float value);
     void setUniform(const std::string &name, bool value);
     void setUniform(const std::string &name, glm::mat4 mat4);
+    void setUniform(const std::string &name, glm::mat3 mat3);
     void setUniform(const std::string &name, glm::vec3 vec3);
     void use()
     {
@@ -83,6 +84,7 @@ private:
     /*  函数   */
     void loadGLBasicModel(const std::string &path);
     void processNode(aiNode *node, const aiScene *scene);
+    void processNodeWhile(aiNode *node, const aiScene *scene);
     GLBasicMesh processMesh(aiMesh *mesh, const aiScene *scene);
     std::vector<GLBasicTexture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string &typeName);
 

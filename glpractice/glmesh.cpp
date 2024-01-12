@@ -85,6 +85,11 @@ void GLSingleShader::setUniform(const std::string &name, glm::mat4 mat4)
     glUseProgram(m_shaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat4));
 }
+void GLSingleShader::setUniform(const std::string &name, glm::mat3 mat3)
+{
+    glUseProgram(m_shaderProgram);
+    glUniformMatrix3fv(glGetUniformLocation(m_shaderProgram, name.c_str()), 1, GL_FALSE, glm::value_ptr(mat3));
+}
 void GLSingleShader::setUniform(const std::string &name, glm::vec3 vec3)
 {
     glUseProgram(m_shaderProgram);
@@ -218,7 +223,7 @@ void GLBasicModel::loadGLBasicModel(const std::string &path)
     directory = path.substr(0, path.find_last_of('/'));
 
     // process ASSIMP's root node recursively
-    processNode(scene->mRootNode, scene);
+    processNodeWhile(scene->mRootNode, scene);
 }
 void GLBasicModel::processNode(aiNode *node, const aiScene *scene)
 {
@@ -233,6 +238,34 @@ void GLBasicModel::processNode(aiNode *node, const aiScene *scene)
     for (unsigned int i = 0; i < node->mNumChildren; i++)
     {
         processNode(node->mChildren[i], scene);
+    }
+}
+#include "queue"
+void GLBasicModel::processNodeWhile(aiNode *node, const aiScene *scene)
+{
+    if (node == nullptr)
+        return;
+    std::queue<aiNode *> q;
+    q.push(node);
+    unsigned int i = 0;
+    while (!q.empty())
+    {
+        auto cur = q.front();
+        q.pop();
+        // 处理节点所有的网格（如果有的话）
+        for (unsigned int i = 0; i < cur->mNumMeshes; i++)
+        {
+            aiMesh *mesh = scene->mMeshes[cur->mMeshes[i]];
+            if (mesh != nullptr)
+            {
+                meshes.push_back(processMesh(mesh, scene));
+            }
+        }
+        for (unsigned int i = 0; i < cur->mNumChildren; i++)
+        {
+            if (cur->mChildren[i] != nullptr)
+                q.push(cur->mChildren[i]);
+        }
     }
 }
 GLBasicMesh GLBasicModel::processMesh(aiMesh *mesh, const aiScene *scene)

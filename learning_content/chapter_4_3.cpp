@@ -92,6 +92,17 @@ float transparentVertices[] = {
     1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
     1.0f, 0.5f, 0.0f, 1.0f, 0.0f};
 
+#include <memory>
+std::shared_ptr<GLBasicFrameBufferObj> bufferRendering{nullptr};
+
+void _framebufferSizeCallback(GLFWwindow *window, int width, int height)
+{
+    glViewport(0,0,width,height);
+    if(bufferRendering!=nullptr){
+        bufferRendering->ResetBuffer(width,height);
+    }
+}
+
 int main()
 {
     // 初始化
@@ -101,7 +112,7 @@ int main()
     glfwSwapInterval(1);
 
     // 设置回调函数
-    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetFramebufferSizeCallback(window, _framebufferSizeCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetScrollCallback(window, mouseScrollCallback);
     glfwSetMouseButtonCallback(window, nullptr);
@@ -137,8 +148,8 @@ int main()
          glm::vec3(0.0f, 0.0f, 0.7f),
          glm::vec3(-0.3f, 0.0f, -2.3f),
          glm::vec3(0.5f, 0.0f, -0.6f)});
-    // 创建缓冲对象
-    GLBasicFrameBufferObj bufferRendering(SRC_WIDTH, SRC_HEIGHT);
+
+    bufferRendering = std::make_shared<GLBasicFrameBufferObj>(SRC_WIDTH, SRC_HEIGHT);
     // 启用深度测试
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -171,7 +182,7 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         processInput(window);
-        bufferRendering.bindBuffer();
+        bufferRendering->bindBuffer();
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -206,7 +217,7 @@ int main()
             normal_shader.setUniform("model", glm::mat4(1.0f));
             plane.draw(normal_shader);
             // rendering buffer
-            bufferRendering.draw(screen_shader);
+            bufferRendering->draw(screen_shader);
         }
 
         {

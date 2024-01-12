@@ -102,6 +102,15 @@ int main()
         simpleDepthShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
         lightShadow.caputureRenderingToTexture(simpleDepthShader, render_scene, SRC_WIDTH, SRC_HEIGHT);
 
+        {
+            ImGui::SetNextWindowSize(ImVec2(static_cast<float>(SRC_WIDTH), static_cast<float>(SRC_WIDTH)), ImGuiCond_FirstUseEver);
+            ImGui::Begin("Rendering");
+            {
+                ImGui::Image((ImTextureID)(intptr_t)lightShadow.getDepthMap(), ImVec2(static_cast<float>(SRC_WIDTH), static_cast<float>(SRC_WIDTH)));
+            }
+            ImGui::End();
+        }
+
         // set light uniforms
         shader.setUniform("shadows", true);
         shader.setUniform("projection", camera.projectionMatrix(SRC_WIDTH, SRC_HEIGHT));
