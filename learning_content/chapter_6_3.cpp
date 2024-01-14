@@ -182,7 +182,7 @@ int main()
             glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),
             glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))};
 
-    // pbr: convert HDR equirectangular environment map to cubemap equivalent
+    // pbr: convert HDR equirectangular environment map to cubemap equivalent 等间距投影转换成天空盒投影
     // ----------------------------------------------------------------------
     equirectangularToCubemapShader.use();
     equirectangularToCubemapShader.setUniform("equirectangularMap", 0);
@@ -202,11 +202,11 @@ int main()
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // then let OpenGL generate mipmaps from first mip face (combatting visible dots artifact)
+    // then let OpenGL generate mipmaps from first mip face (combatting visible dots artifact) // 生成MipMap
     glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-    // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale.
+    // pbr: create an irradiance cubemap, and re-scale capture FBO to irradiance scale. 辐照度贴图
     // --------------------------------------------------------------------------------
     unsigned int irradianceMap;
     glGenTextures(1, &irradianceMap);
@@ -225,7 +225,7 @@ int main()
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
 
-    // pbr: solve diffuse integral by convolution to create an irradiance (cube)map.
+    // pbr: solve diffuse integral by convolution to create an irradiance (cube)map. 从环境贴图生成辐照度贴图
     // -----------------------------------------------------------------------------
     irradianceShader.use();
     irradianceShader.setUniform("environmentMap", 0);
@@ -245,7 +245,7 @@ int main()
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale.
+    // pbr: create a pre-filter cubemap, and re-scale capture FBO to pre-filter scale. 预过滤贴图
     // --------------------------------------------------------------------------------
     unsigned int prefilterMap;
     glGenTextures(1, &prefilterMap);
@@ -262,7 +262,7 @@ int main()
     // generate mipmaps for the cubemap so OpenGL automatically allocates the required memory.
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-    // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.
+    // pbr: run a quasi monte-carlo simulation on the environment lighting to create a prefilter (cube)map.  从环境贴图生成预过滤贴图
     // ----------------------------------------------------------------------------------------------------
     prefilterShader.use();
     prefilterShader.setUniform("environmentMap", 0);
@@ -294,7 +294,7 @@ int main()
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // pbr: generate a 2D LUT from the BRDF equations used.
+    // pbr: generate a 2D LUT from the BRDF equations used. 生成BRDF贴图
     // ----------------------------------------------------
     unsigned int brdfLUTTexture;
     glGenTextures(1, &brdfLUTTexture);
