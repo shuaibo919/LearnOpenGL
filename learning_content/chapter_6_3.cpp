@@ -36,6 +36,9 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+void render_scene(GLSingleShader &shader);
+void render_plane(GLSingleShader &shader);
+
 int main()
 {
     // glfw: initialize and configure
@@ -63,6 +66,16 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    // ImGUI Setup
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    ImGui::StyleColorsDark();                             // Setup Dear ImGui style
+    ImGui_ImplGlfw_InitForOpenGL(window, true);           // Setup Platform/Renderer backends
+    ImGui_ImplOpenGL3_Init("#version 130");
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -329,6 +342,19 @@ int main()
     backgroundShader.use();
     backgroundShader.setUniform("projection", projection);
 
+    // 创建阴影对象
+    GLSingleShader simpleDepthShader("resource/shader/chapter_5/shadow/shadow_mapping_depth");
+    const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    auto lightShadow = GLBasicShadow<SHADOW_WIDTH, SHADOW_HEIGHT>();
+    glm::vec3 lightPos = glm::vec3(-2.0f, 125.0f, 10.0f);
+    float near_plane = 1.0f, far_plane = 100.f;
+    glm::mat4 lightProjection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, near_plane, far_plane);
+    glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+    // render scene from light's point of view
+    simpleDepthShader.use();
+    simpleDepthShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
+
     // then before rendering, configure the viewport to the original framebuffer's screen dimensions
     int scrWidth, scrHeight;
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
@@ -338,6 +364,9 @@ int main()
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
         // per-frame time logic
         // --------------------
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -353,12 +382,24 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        lightShadow.caputureRenderingToTexture(simpleDepthShader, render_scene, SCR_WIDTH, SCR_HEIGHT);
+        // {
+        //     ImGui::SetNextWindowSize(ImVec2(static_cast<float>(SCR_WIDTH / 2), static_cast<float>(SCR_HEIGHT / 2)), ImGuiCond_FirstUseEver);
+        //     ImGui::Begin("Rendering");
+        //     {
+        //         ImGui::Image((ImTextureID)(intptr_t)lightShadow.getDepthMap(), ImVec2(static_cast<float>(SCR_WIDTH / 2), static_cast<float>(SCR_HEIGHT / 2)));
+        //     }
+        //     ImGui::End();
+        // }
+
         // render scene, supplying the convoluted irradiance map to the final shader.
         // ------------------------------------------------------------------------------------------
         pbrShader.use();
         glm::mat4 view = camera.viewMatrix();
         pbrShader.setUniform("view", view);
         pbrShader.setUniform("camPos", camera.positionVector());
+        pbrShader.setUniform("lightPos", lightPos);
+        pbrShader.setUniform("lightSpaceMatrix", lightSpaceMatrix);
 
         // bind pre-computed IBL data
         glActiveTexture(GL_TEXTURE0);
@@ -367,7 +408,9 @@ int main()
         glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
-
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, lightShadow.getDepthMap());
+        pbrShader.setUniform("shadowMap", 3);
         // render rows*column number of spheres with varying metallic/roughness values scaled by rows and columns respectively
         glm::mat4 model = glm::mat4(1.0f);
         for (int row = 0; row < nrRows; ++row)
@@ -389,7 +432,7 @@ int main()
                 renderSphere();
             }
         }
-
+        render_plane(pbrShader);
         // render light source (simply re-render sphere at light positions)
         // this looks a bit off as we use the same shader, but it'll make their positions obvious and
         // keeps the codeprint small.
@@ -423,6 +466,8 @@ int main()
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -659,6 +704,59 @@ void renderCube()
     glBindVertexArray(cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
+}
+
+// render_plane() renders a Plane.
+// -------------------------------------------------
+GLfloat planeVertices[] = {
+    // Positions          // Normals         // Texture Coords
+    125.0f, -20.5f, 125.0f, 0.0f, 1.0f, 0.0f, 125.0f, 0.0f,
+    -125.0f, -20.5f, -125.0f, 0.0f, 1.0f, 0.0f, 0.0f, 125.0f,
+    -125.0f, -20.5f, 125.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+
+    125.0f, -20.5f, 125.0f, 0.0f, 1.0f, 0.0f, 125.0f, 0.0f,
+    125.0f, -20.5f, -125.0f, 0.0f, 1.0f, 0.0f, 125.0f, 125.0f,
+    -125.0f, -20.5f, -125.0f, 0.0f, 1.0f, 0.0f, 0.0f, 125.0f};
+
+void render_plane(GLSingleShader &shader)
+{
+    glm::mat4 model = glm::mat4(1.0f);
+    shader.setUniform("model", model);
+    shader.setUniform("roughness", 1.0f);
+    shader.setUniform("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
+    shader.setUniform("metallic", 0.086f);
+    static GLBasicVerticesObj<GLBasicPNTVertex> plane(fromCStylePNTVertices(planeVertices, 48));
+    plane.draw(shader);
+}
+
+void render_scene(GLSingleShader &shader)
+{
+
+    // floor
+    glm::mat4 model = glm::mat4(1.0f);
+    shader.setUniform("model", model);
+    static GLBasicVerticesObj<GLBasicPNTVertex> plane(fromCStylePNTVertices(planeVertices, 48));
+    plane.draw(shader);
+    // cubes
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0));
+    shader.setUniform("model", model);
+    model = glm::mat4(1.0f);
+    int nrRows = 7;
+    int nrColumns = 7;
+    float spacing = 2.5;
+    for (int row = 0; row < nrRows; ++row)
+    {
+        for (int col = 0; col < nrColumns; ++col)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(
+                                              (float)(col - (nrColumns / 2)) * spacing,
+                                              (float)(row - (nrRows / 2)) * spacing,
+                                              -2.0f));
+            shader.setUniform("model", model);
+            renderSphere();
+        }
+    }
 }
 
 // renderQuad() renders a 1x1 XY quad in NDC

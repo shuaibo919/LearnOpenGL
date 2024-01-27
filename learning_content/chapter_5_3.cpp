@@ -90,9 +90,10 @@ int main()
         // Check and call events
         glfwPollEvents();
 
-        lightPos.x = sin(glfwGetTime()) * 3.0f;
-        lightPos.z = cos(glfwGetTime()) * 2.0f;
-        lightPos.y = 5.0 + cos(glfwGetTime()) * 1.0f;
+        // lightPos.x = sin(glfwGetTime()) * 3.0f;
+        // lightPos.z = cos(glfwGetTime()) * 2.0f;
+        // lightPos.y = 5.0 + cos(glfwGetTime()) * 1.0f;
+        lightPos = glm::vec3(-2.0f, 4.0f, -1.0f);
         float near_plane = 1.0f, far_plane = 7.5f;
         glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
         glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -213,17 +214,17 @@ void render_scene(GLSingleShader &shader)
     shader.setUniform("model", model);
     render_plane(shader);
     // cubes
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.5f, 0.0));
+    model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0));
     shader.setUniform("model", model);
     render_cube(shader);
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 1.0));
-    shader.setUniform("model", model);
-    render_cube(shader);
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 2.0));
-    model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-    model = glm::scale(model, glm::vec3(0.5));
-    shader.setUniform("model", model);
-    render_cube(shader);
+    // model = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 1.0));
+    // shader.setUniform("model", model);
+    // render_cube(shader);
+    // model = glm::translate(glm::mat4(1.0f), glm::vec3(-1.0f, 0.0f, 2.0));
+    // model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+    // model = glm::scale(model, glm::vec3(0.5));
+    // shader.setUniform("model", model);
+    // render_cube(shader);
 }
 
 // glfw: whenever the mouse moves, this callback is called

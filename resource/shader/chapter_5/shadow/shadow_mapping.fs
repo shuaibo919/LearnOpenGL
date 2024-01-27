@@ -74,5 +74,6 @@ void main()
     shadow = min(shadow, 0.75); // reduce shadow strength a little: allow some diffuse/specular light in shadowed regions
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
+    // FragColor = vec4(shadow,0.f,0.f, 1.0f);
     FragColor = vec4(lighting, 1.0f);
 }
