@@ -26,6 +26,212 @@ std::vector<glm::mat4> getLightSpaceMatrices();
 std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4 &projview);
 void drawCascadeVolumeVisualizers(const std::vector<glm::mat4> &lightMatrices, GLSingleShader *shader);
 
+class BufferBase
+{
+    using Ptr = std::shared_ptr<BufferBase>;
+
+protected:
+    GLuint id;
+    virtual void InitBuffer() = 0;
+
+public:
+    BufferBase() : id(0) {}
+    virtual ~BufferBase() = default;
+
+public:
+    virtual void Bind() = 0;
+    virtual void Unbind() = 0;
+
+public:
+    inline GLuint GetID() const { return id; }
+};
+
+class UnifromBuffer : public BufferBase
+{
+public:
+    using Ptr = std::shared_ptr<UnifromBuffer>;
+    void SubData(GLintptr offset, GLsizeiptr size, const void *data)
+    {
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+    }
+    void Bind() override
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, id);
+    }
+    void Unbind() override
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
+private:
+    size_t length;
+
+public:
+    UnifromBuffer() = delete;
+    UnifromBuffer(GLsizeiptr size) : BufferBase(), m_size(size)
+    {
+        InitBuffer();
+    }
+
+    ~UnifromBuffer() = default;
+
+private:
+    GLsizeiptr m_size;
+    void InitBuffer() override
+    {
+        glGenBuffers(1, &id);
+        glBindBuffer(GL_UNIFORM_BUFFER, id);
+        glBufferData(GL_UNIFORM_BUFFER, m_size, nullptr, GL_STATIC_DRAW);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, id);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+};
+
+class FrameBuffer : public BufferBase
+{
+public:
+    using Ptr = std::shared_ptr<FrameBuffer>;
+
+    FrameBuffer();
+    ~FrameBuffer();
+
+protected:
+    void InitBuffer() override;
+
+public:
+    void ToTexture(int attachment, int texturePrimitive, int textureID);
+    void BlitFrom(FrameBuffer::Ptr &frameBuffer, unsigned int width, unsigned int height);
+    void SetRenderBuffer(int attachment, int renderBufferID);
+    void SetTexture2D(int attachment, int textureId, GLenum textarget = GL_TEXTURE_2D, int level = 0);
+    void SetTexture(int attachment, int textureId, int level = 0);
+    void Bind() override;
+    void Unbind() override;
+    bool IsComplete();
+};
+
+class RenderBuffer : public BufferBase
+{
+public:
+    using Ptr = std::shared_ptr<RenderBuffer>;
+
+    RenderBuffer(unsigned int width, unsigned int height, int internalFormat = GL_DEPTH_COMPONENT);
+    RenderBuffer() = default;
+    virtual ~RenderBuffer();
+
+protected:
+    unsigned int m_width, m_height;
+    int m_internalFormat;
+
+protected:
+    void InitBuffer() override;
+
+public:
+    void Bind() override;
+    void Unbind() override;
+    virtual void Rescale(unsigned int width, unsigned int height);
+
+public:
+    inline unsigned int GetWidth() const { return m_width; }
+    inline unsigned int GetHeight() const { return m_height; }
+    inline int GetInternalFormat() const { return m_internalFormat; }
+};
+
+RenderBuffer::RenderBuffer(unsigned int width, unsigned int height, int internalFormat)
+    : BufferBase(), m_width(width), m_height(height), m_internalFormat(internalFormat)
+{
+    InitBuffer();
+}
+
+RenderBuffer::~RenderBuffer()
+{
+    Unbind();
+    glDeleteRenderbuffers(1, &id);
+}
+
+void RenderBuffer::InitBuffer()
+{
+    glGenRenderbuffers(1, &id);
+    glBindRenderbuffer(GL_RENDERBUFFER, id);
+    glRenderbufferStorage(GL_RENDERBUFFER, m_internalFormat, m_width, m_height);
+}
+
+void RenderBuffer::Rescale(unsigned int width, unsigned int height)
+{
+    m_width = width;
+    m_height = height;
+    glBindRenderbuffer(GL_RENDERBUFFER, id);
+    glRenderbufferStorage(GL_RENDERBUFFER, m_internalFormat, m_width, m_height);
+}
+
+void RenderBuffer::Bind()
+{
+    glBindRenderbuffer(GL_RENDERBUFFER, id);
+}
+
+void RenderBuffer::Unbind()
+{
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
+FrameBuffer::FrameBuffer()
+    : BufferBase()
+{
+    InitBuffer();
+}
+
+FrameBuffer::~FrameBuffer()
+{
+    Unbind();
+    glDeleteFramebuffers(1, &id);
+}
+
+void FrameBuffer::InitBuffer()
+{
+    glGenFramebuffers(1, &id);
+    glBindFramebuffer(GL_FRAMEBUFFER, id);
+}
+
+void FrameBuffer::ToTexture(int attachment, int texturePrimitive, int textureID)
+{
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, texturePrimitive, textureID, 0);
+}
+
+void FrameBuffer::BlitFrom(FrameBuffer::Ptr &frameBuffer, unsigned int width, unsigned int height)
+{
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, id);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBuffer->GetID());
+    glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+}
+
+void FrameBuffer::SetRenderBuffer(int attachment, int renderBufferID)
+{
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderBufferID);
+}
+
+void FrameBuffer::SetTexture2D(int attachment, int textureId, GLenum textarget, int level)
+{
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textarget, textureId, level);
+}
+void FrameBuffer::SetTexture(int attachment, int textureId, int level)
+{
+    glFramebufferTexture(GL_FRAMEBUFFER, attachment, textureId, level);
+}
+
+void FrameBuffer::Bind()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, id);
+}
+
+void FrameBuffer::Unbind()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+bool FrameBuffer::IsComplete()
+{
+    return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+}
+
 // settings
 const unsigned int SCR_WIDTH = 1024;
 const unsigned int SCR_HEIGHT = 720;
@@ -180,13 +386,7 @@ int main()
 
     // configure UBO
     // --------------------
-    unsigned int matricesUBO;
-    glGenBuffers(1, &matricesUBO);
-    glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
-    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 8, nullptr, GL_STATIC_DRAW);
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, matricesUBO);
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
+    auto ubo = std::make_shared<UnifromBuffer>(16 * sizeof(glm::mat4));
     // shader configuration
     // --------------------
     shader.use();
@@ -222,12 +422,12 @@ int main()
         // 0. UBO setup
         const auto lightMatrices = getLightSpaceMatrices();
         lightMatricesCache = lightMatrices;
-        glBindBuffer(GL_UNIFORM_BUFFER, matricesUBO);
+        ubo->Bind();
         for (size_t i = 0; i < lightMatrices.size(); ++i)
         {
-            glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(glm::mat4), sizeof(glm::mat4), &lightMatrices[i]);
+            ubo->SubData(i * sizeof(glm::mat4), sizeof(glm::mat4), &lightMatrices[i]);
         }
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        ubo->Unbind();
 
         // 1. render depth of scene to texture (from light's perspective)
         // --------------------------------------------------------------
@@ -285,10 +485,10 @@ int main()
         // render Depth map to quad for visual debugging
         // ---------------------------------------------
         debugDepthQuad.use();
-        debugDepthQuad.setUniform("layer", 3);
+        debugDepthQuad.setUniform("layer", 0);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D_ARRAY, lightDepthMaps);
-        if (false)
+        if (true)
         {
             renderQuad();
         }
@@ -618,7 +818,7 @@ std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4 &proj, const 
 
 glm::mat4 getLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
-    auto proj = glm::perspective(glm::radians(camera.GetZoom()), (float)SCR_WIDTH / (float)SCR_HEIGHT, nearPlane, farPlane);
+    const auto proj = camera.projectionMatrix(SCR_WIDTH, SCR_HEIGHT);
     const auto corners = getFrustumCornersWorldSpace(proj, camera.viewMatrix());
 
     glm::vec3 center = glm::vec3(0, 0, 0);

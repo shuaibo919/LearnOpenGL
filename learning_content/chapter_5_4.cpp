@@ -66,7 +66,7 @@ int main()
     auto lightShadow = GLCubeShadowMap<SHADOW_WIDTH, SHADOW_HEIGHT>();
     // 创建shader
     GLSingleShader shader("resource/shader/chapter_5/shadow/point_shadow_mapping");
-    GLSingleShader simpleDepthShader("resource/shader/chapter_5/shadow/point_shadow",true);
+    GLSingleShader simpleDepthShader("resource/shader/chapter_5/shadow/point_shadow", true);
     shader.use();
     shader.setUniform("diffuseTexture", 0);
     shader.setUniform("depthMap", 1);
@@ -100,10 +100,10 @@ int main()
         float near = 1.0f;
         float far = 25.0f;
         simpleDepthShader.use();
-        simpleDepthShader.setUniform("far_plane",far);
+        simpleDepthShader.setUniform("far_plane", far);
         simpleDepthShader.setUniform("lightPos", lightPos);
-        lightShadow.setCubeShadowLightDir(simpleDepthShader,"shadowMatrices",lightPos, 90.0f, near, far);
-        lightShadow.caputureRenderingToTexture(simpleDepthShader,render_scene,SRC_WIDTH,SRC_HEIGHT);
+        lightShadow.setCubeShadowLightDir(simpleDepthShader, "shadowMatrices", lightPos, 90.0f, near, far);
+        lightShadow.caputureRenderingToTexture(simpleDepthShader, render_scene, SRC_WIDTH, SRC_HEIGHT);
 
         // 设置场景着色器
         shader.use();
@@ -118,7 +118,6 @@ int main()
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_CUBE_MAP, lightShadow.getDepthMap());
         render_scene(shader);
-
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

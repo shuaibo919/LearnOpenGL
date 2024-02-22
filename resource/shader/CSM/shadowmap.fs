@@ -12,7 +12,6 @@ uniform sampler2DArray shadowMap;
 
 uniform vec3 lightDir;
 uniform vec3 viewPos;
-uniform float farPlane;
 
 uniform mat4 view;
 
@@ -61,14 +60,8 @@ float ShadowCalculation(vec3 fragPosWorldSpace)
     vec3 normal = normalize(fs_in.Normal);
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     const float biasModifier = 0.5f;
-    if (layer == cascadeCount)
-    {
-        bias *= 1 / (farPlane * biasModifier);
-    }
-    else
-    {
-        bias *= 1 / (cascadePlaneDistances[layer] * biasModifier);
-    }
+    bias *= 1 / (cascadePlaneDistances[layer] * biasModifier);
+    
 
     // PCF
     float shadow = 0.0;

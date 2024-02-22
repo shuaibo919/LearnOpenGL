@@ -74,6 +74,10 @@ public:
     {
         return glm::perspective(glm::radians(m_zoom), (float)src_width / (float)src_height, 0.1f, 100.0f);
     }
+    float GetZoom()
+    {
+        return m_zoom;
+    }
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void processDirection(CameraMovement direction, float deltaTime)
     {
@@ -86,9 +90,9 @@ public:
             m_position -= m_right * cameraSpeed;
         if (direction == CameraMovement::RIGHT)
             m_position += m_right * cameraSpeed;
-        if(direction == CameraMovement::UP)
+        if (direction == CameraMovement::UP)
             m_position += m_up * cameraSpeed;
-        if(direction == CameraMovement::DOWN)
+        if (direction == CameraMovement::DOWN)
             m_position -= m_up * cameraSpeed;
     }
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.

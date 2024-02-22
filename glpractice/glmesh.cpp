@@ -16,7 +16,8 @@ GLSingleShader::GLSingleShader(std::string glsl_file_path, bool load_geometry)
     GLSL = glsl_file_path;
     attachGLSL(GLSL + ".vs", GL_VERTEX_SHADER);
     attachGLSL(GLSL + ".fs", GL_FRAGMENT_SHADER);
-    if(load_geometry) attachGLSL(GLSL + ".gs", GL_GEOMETRY_SHADER);
+    if (load_geometry)
+        attachGLSL(GLSL + ".gs", GL_GEOMETRY_SHADER);
     glUseProgram(m_shaderProgram);
 }
 void GLSingleShader::attachGLSL(std::string glsl_file_path, GLenum type)
@@ -165,7 +166,8 @@ void GLBasicMesh::draw(GLSingleShader &shader)
         else if (name == "texture_height")
             number = std::to_string(heightNr++);
 
-        shader.setUniform("material." + name + number, i);
+        // shader.setUniform("material." + name + number, i);
+        shader.setUniform(name + number, i);
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
     glActiveTexture(GL_TEXTURE0);
@@ -227,12 +229,14 @@ void GLBasicModel::loadGLBasicModel(const std::string &path)
 }
 void GLBasicModel::processNode(aiNode *node, const aiScene *scene)
 {
-    if(node == nullptr) return;
+    if (node == nullptr)
+        return;
     // 处理节点所有的网格（如果有的话）
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-        if(mesh!=nullptr) meshes.push_back(processMesh(mesh, scene));
+        if (mesh != nullptr)
+            meshes.push_back(processMesh(mesh, scene));
     }
     // 接下来对它的子节点重复这一过程
     for (unsigned int i = 0; i < node->mNumChildren; i++)
