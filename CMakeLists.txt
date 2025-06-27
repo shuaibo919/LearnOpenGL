@@ -2,6 +2,16 @@
 project(test)
 
 set(CMAKE_BUILD_TYPE "Debug")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/Release)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/Debug)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(FINAL_OUTPUT_BIN_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG})
+else()
+    set(FINAL_OUTPUT_BIN_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -56,3 +66,18 @@ foreach(_var ${app_src})
     add_executable(${app_name} ${glad_src} ${gl_shape_src} ${_var} ${imgui_src} ${imgui_backend_src})
     message("output exectuable:${app_name}")
 endforeach()
+
+# copy resources
+add_custom_target(copy_resources ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/resource
+    ${FINAL_OUTPUT_BIN_PATH}/resource
+)
+
+add_custom_target(
+    CopyAssimpDll ALL
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp/assimp-vc143-mt.dll
+    ${FINAL_OUTPUT_BIN_PATH}/assimp-vc143-mt.dll
+    COMMENT "Copying assimp-vc143-mt.dll to bin/Debug/3rdparty/"
+)
