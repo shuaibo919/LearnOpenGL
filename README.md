@@ -1,48 +1,60 @@
-# Learning OpenGL
-## LearningOpenGL
 
 学习记录(Windows 平台(mvsc2019/mvsc2022支持))
 
 环境设置:GLAD/GLFW + CMAKE + MVSC
 
-## 编译
-```bash
-mkdir build
-mkdir bin
-cd build
-cmake ..
-```
-然后执行,自动构建每个章节对应的课后作业:
-```bash
-YS@DESKTOP-5JP5NOA MINGW64 /f/hsbDocments/cpp_dev/LearningOpenGL/build (master)$ cmake --build .
-MSBuild version 17.6.3+07e294721 for .NET Framework
 
-  chapter_1.vcxproj -> F:\hsbDocments\cpp_dev\LearningOpenGL\bin\Debug\chapter
-  _1.exe
-  chapter_2.vcxproj -> F:\hsbDocments\cpp_dev\LearningOpenGL\bin\Debug\chapter
-  _2.exe
-  chapter_3.vcxproj -> F:\hsbDocments\cpp_dev\LearningOpenGL\bin\Debug\chapter
-  _3.exe
-  chapter_4_1.vcxproj -> F:\hsbDocments\cpp_dev\LearningOpenGL\bin\Debug\chapt
-  er_4_1.exe
-  chapter_4_2.cpp
-  chapter_4_2.vcxproj -> F:\hsbDocments\cpp_dev\LearningOpenGL\bin\Debug\chapt
-  er_4_2.exe
-```
-最后:
-```bash
-cp 3rdparty/3rdparty/assimp/assimp-vc143-mt.dll /bin/Debug/3rdparty/assimp-vc143-mt.dll
-```
+## 章节对应关系
+
+|                 |                                |
+| :-------------: | :----------------------------: |
+|  chapter_1.exe  |            MVP变换             |
+|  chapter_2.exe  |            基础光照            |
+|  chapter_3.exe  |            模型加载            |
+| chapter_4_1.exe |           DepthTest            |
+| chapter_4_2.exe |          StencilTest           |
+| chapter_4_3.exe |           AlphaTest            |
+| chapter_4_4.exe |            基础反射            |
+| chapter_4_5.exe |            顶点动画            |
+| chapter_4_6.exe |          InstanceDraw          |
+| chapter_4_7.exe |              MSAA              |
+| chapter_5_1.exe |           BlinnPhong           |
+| chapter_5_2.exe |        GammaCorrection         |
+| chapter_5_3.exe |           ShadowMap            |
+| chapter_5_4.exe | Omnidirectional Shadow Mapping |
+| chapter_5_5.exe |         Normal Mapping         |
+| chapter_6_1.exe |           PBR-Color            |
+| chapter_6_2.exe |          HDR-CubeMap           |
+| chapter_6_3.exe |              IBL               |
+| chapter_6_4.exe |         Test-SubWindow         |
+| chapter_6_5.exe |              CSM               |
+| chapter_6_6.exe |              CSM               |
+| chapter_6_8.exe |           Area-Light           |
 
 ## 启动程序
-由于resource目录在顶层(需在根目录下执行)：
-```
-bin/Debug(Release)/chapter_1.exe
-```
-若想直接启动，需要复制一份resource至bin目录下的对应可执行文件中
+在```bin/Debug(Release)```下启动
+
+
+
+## 参考链接
 
 [LearningOpenGL](https://learnopengl-cn.github.io/)
 
 [author：Joey de Vries](http://joeydevries.com/)
 
-![img](img/chpater_4_skyBox.png)
+
+<div style="text-align: center;">
+  <img src="img/chapter_4_skyBox.png" alt="alt text" />
+  <figcaption></figcaption>
+</div>
+
+<div style="text-align: center;">
+  <img src="img/chapter_6_arealight.png" alt="alt text" />
+  <figcaption></figcaption>
+</div>
+
+<div style="text-align: center;">
+  <img src="img/chapter_6_ibl.png" alt="alt text" />
+  <figcaption></figcaption>
+</div>
+
